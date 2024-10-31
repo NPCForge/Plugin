@@ -16,8 +16,8 @@
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "MarkAsNPC",
-			"Type": "Editor",
+			"Name": "NPCForge",
+			"Type": "Runtime",
 			"LoadingPhase": "Default"
 		}
 	]

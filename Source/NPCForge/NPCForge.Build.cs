@@ -1,8 +1,8 @@
 ﻿using UnrealBuildTool;
 
-public class MarkAsNPC : ModuleRules
+public class NPCForge : ModuleRules
 {
-    public MarkAsNPC(ReadOnlyTargetRules Target) : base(Target)
+    public NPCForge(ReadOnlyTargetRules Target) : base(Target)
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
