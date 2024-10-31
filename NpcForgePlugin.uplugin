@@ -16,8 +16,8 @@
 	"Installed": false,
 	"Modules": [
 		{
-			"Name": "NpcForgePlugin",
-			"Type": "Runtime",
+			"Name": "MarkAsNPC",
+			"Type": "Editor",
 			"LoadingPhase": "Default"
 		}
 	]
