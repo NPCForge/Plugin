@@ -22,6 +22,8 @@ void UAIComponent::BeginPlay()
 	// Generate checksum from name + prompt
 	FString CombinedString = FString::Printf(TEXT("%s%s"), *UniqueName, *PersonalityPrompt);
 	UniqueID = FMD5::HashAnsiString(*CombinedString);
+
+	UE_LOG(LogTemp, Display, TEXT("checksum = %s"), *UniqueID);
 	
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
@@ -34,9 +36,9 @@ void UAIComponent::BeginPlay()
 
 	// Testing environment scanning
 	// ScanEnvironment();
-	
-	
-	WebSocketHandler->SendMessage("TakeDecision", "Hello from unreal engine!");
+
+	if (UniqueID == "7543525dcb1f85031029a54e10cab089")
+		WebSocketHandler->SendMessage("TakeDecision", "Hello from unreal engine!");
 }
 
 void UAIComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -117,9 +119,59 @@ void UAIComponent::ScanForNearbyEntities(float Radius, FVector ScanLocation)
 void UAIComponent::HandleMessage(FMessage Message)
 {
 	UE_LOG(LogTemp, Display, TEXT("FROM AI: Message reçu de %s : %s"), *Message.SenderID, *Message.Content);
+	WebSocketHandler->SendMessage("TakeDecision", Message.Content);
+}
+
+FString ExtractGptMessage(const FString& Message)
+{
+	FString GptResponse; // La variable pour stocker la réponse
+
+	// Créer un lecteur JSON à partir de la chaîne
+	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(Message);
+
+	// Stocker l'objet JSON parsé
+	TSharedPtr<FJsonObject> JsonObject;
+
+	// Tenter de parser le JSON
+	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+	{
+		// Vérifier si "status" est égal à "success"
+		FString OverallStatus;
+		if (JsonObject->TryGetStringField(TEXT("status"), OverallStatus) && OverallStatus == TEXT("success"))
+		{
+			// Extraire la partie "data" en tant qu'objet JSON
+			TSharedPtr<FJsonObject> DataObject = JsonObject->GetObjectField(TEXT("data"));
+			if (DataObject.IsValid())
+			{
+				// Récupérer le champ "message"
+				if (DataObject->TryGetStringField(TEXT("message"), GptResponse))
+				{
+					return GptResponse; // Retourner directement le message si tout est correct
+				}
+			}
+		}
+	}
+
+	return FString(); // Retourner une chaîne vide en cas d'échec
 }
 
 void UAIComponent::HandleWebSocketMessage(const FString& Message)
 {
 	UE_LOG(LogTemp, Display, TEXT("Handled message: %s"), *Message);
+	FString ExtractedMessage = ExtractGptMessage(Message);
+
+	if (!ExtractedMessage.IsEmpty())
+	{
+		if (UniqueID == "7e4c428a35992a0a6dbab690bad377a9")
+		{
+			SendMessageToNPC("7543525dcb1f85031029a54e10cab089", ExtractedMessage);
+		} else if (UniqueID == "7543525dcb1f85031029a54e10cab089")
+		{
+			SendMessageToNPC("7e4c428a35992a0a6dbab690bad377a9", ExtractedMessage);
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Impossible d'extraire le message ou le status est incorrect."));
+	}
 }
