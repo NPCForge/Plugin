@@ -3,6 +3,11 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MessageManager.h"
+#include "Http.h"
+#include "Json.h"
+#include "JsonUtilities.h"
+#include "WebSocketHandler.h"
+
 #include "AIComponent.generated.h"
 
 UCLASS(ClassGroup=(AI), meta=(BlueprintSpawnableComponent, DisplayName="NPCForge", ToolTip="Mark as NPC"))
@@ -20,17 +25,13 @@ public:
 	// @param ThisTickFunction - Information about this specific tick function.
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	// Loads the Unique ID of the NPC from a saved slot.
-	// @return true if the Unique ID was successfully loaded, false otherwise.
-	bool LoadUniqueID();
-
-	// Saves the current Unique ID of the NPC to a save slot for persistence between sessions.
-	void SaveUniqueID() const;
-
 	// Store the personality prompt for the NPC
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString PersonalityPrompt;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	FString UniqueName;
+	
 	UFUNCTION(BlueprintCallable)
 	void SendMessageToNPC(const FString& ReceiverID, const FString& Content);
 
@@ -40,10 +41,21 @@ public:
 	UFUNCTION()
 	void HandleMessage(FMessage Message);
 
+	void ScanEnvironment();
+
+	void ScanForNearbyEntities(float Radius, FVector ScanLocation);
+
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+
+	UFUNCTION()
+	void HandleWebSocketMessage(const FString& Message);
+
 protected:
 	// Called when the game starts or when the component is spawned.
 	virtual void BeginPlay() override;
 
 private:
-	FGuid UniqueID;
+	TArray<AActor*> NearbyEntities;
+	FString UniqueID;
+	UWebSocketHandler* WebSocketHandler;
 };

@@ -10,6 +10,10 @@ public class NPCForge : ModuleRules
             new string[]
             {
                 "Core",
+                "WebSockets",
+                "Http",
+                "Json",
+                "JsonUtilities",
             }
         );
 

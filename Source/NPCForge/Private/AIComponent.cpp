@@ -1,9 +1,17 @@
 ﻿#include "AIComponent.h"
-#include "AIComponentSaveGame.h"
 #include "Kismet/GameplayStatics.h"
+#include "HttpManager.h"
 
 UAIComponent::UAIComponent()
 {
+	WebSocketHandler = NewObject<UWebSocketHandler>();
+
+	if (WebSocketHandler)
+	{
+		WebSocketHandler->Initialize();
+		WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
+	}
+	
 	PrimaryComponentTick.bCanEverTick = false;
 }
 
@@ -11,71 +19,38 @@ void UAIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// Attempt to load a previously saved Unique ID.
-	// If loading fails (i.e., the ID doesn't exist), generate a new Unique ID and save it.
-	if (!LoadUniqueID())
-	{
-		UniqueID = FGuid::NewGuid();
-		SaveUniqueID();
-	}
-
+	// Generate checksum from name + prompt
+	FString CombinedString = FString::Printf(TEXT("%s%s"), *UniqueName, *PersonalityPrompt);
+	UniqueID = FMD5::HashAnsiString(*CombinedString);
+	
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
-		// Abonnement à l'événement de réception de message
+		// Subscribe to message reception event
 		MessageManager->NewMessageReceivedEvent.AddDynamic(this, &UAIComponent::HandleMessage);
 	}
-
-	UE_LOG(LogTemp, Display, TEXT("UniqueID: %s"), *UniqueID.ToString());
-
+	
 	// auto send message for debug purpose
-	SendMessageToNPC("5D00E2C44F143DF62A45699B8A116C34", "content");
+	// SendMessageToNPC("5D00E2C44F143DF62A45699B8A116C34", "content");
+
+	// Testing environment scanning
+	// ScanEnvironment();
+	
+	
+	WebSocketHandler->SendMessage("TakeDecision", "Hello from unreal engine!");
 }
 
-bool UAIComponent::LoadUniqueID()
+void UAIComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	// Attempt to load the game instance from a specific save slot.
-	if (UAIComponentSaveGame* LoadGameInstance = Cast<UAIComponentSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("NPCSaveSlot"), 0)))
-	{
-		// Retrieve the name of the NPC (owner of this component).
-		FString NPCName = GetOwner()->GetName();
-
-		// Check if the Unique ID for this NPC name exists in the saved data.
-		if (LoadGameInstance->NPCUniqueIDs.Contains(NPCName))
-		{
-			// Load the Unique ID associated with this NPC name.
-			UniqueID = LoadGameInstance->NPCUniqueIDs[NPCName];
-			return true;
-		}
-	}
-	// Return false if loading failed or no Unique ID was found.
-	return false;
-}
-
-void UAIComponent::SaveUniqueID() const
-{
-	// Attempt to load the existing save game instance or create a new one if it doesn't exist.
-	UAIComponentSaveGame* SaveGameInstance = Cast<UAIComponentSaveGame>(UGameplayStatics::LoadGameFromSlot(TEXT("NPCSaveSlot"), 0));
-	if (!SaveGameInstance)
-	{
-		// Create a new save game instance if none was loaded.
-		SaveGameInstance = Cast<UAIComponentSaveGame>(UGameplayStatics::CreateSaveGameObject(UAIComponentSaveGame::StaticClass()));
-	}
-
-	// Retrieve the name of the NPC (owner of this component).
-	const FString NPCName = GetOwner()->GetName();
-
-	// Add or update the Unique ID for this NPC name in the save data.
-	SaveGameInstance->NPCUniqueIDs.Add(NPCName, UniqueID);
-
-	// Save the updated data back to the same save slot.
-	UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("NPCSaveSlot"), 0);
+	WebSocketHandler->Close();
+	
+	Super::EndPlay(EndPlayReason);
 }
 
 void UAIComponent::SendMessageToNPC(const FString& ReceiverID, const FString& Content)
 {
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
-		MessageManager->SendMessage(UniqueID.ToString(), ReceiverID, Content);
+		MessageManager->SendMessage(UniqueID, ReceiverID, Content);
 	}
 }
 
@@ -83,7 +58,7 @@ TArray<FMessage> UAIComponent::GetReceivedMessages() const
 {
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
-		return MessageManager->GetMessagesForNPC(UniqueID.ToString());
+		return MessageManager->GetMessagesForNPC(UniqueID);
 	}
 	return TArray<FMessage>();
 }
@@ -96,11 +71,55 @@ void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	if (GetOwner())
 	{
 		// Future functionality for NPCs could go here.
-		
 	}
+}
+
+void UAIComponent::ScanEnvironment()
+{
+	// scan for nearby entities with a 1000 radius (average), and actual owner position
+	ScanForNearbyEntities(1000, GetOwner()->GetActorLocation());
+}
+
+void UAIComponent::ScanForNearbyEntities(float Radius, FVector ScanLocation)
+{
+	TArray<AActor*> OverlappingActors;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes; // Object type to detect
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn)); // Should maybe change, lets see what object type an entity can be?
+
+	TArray<AActor*> IgnoredActors; // Actors to ignore (optional)
+	IgnoredActors.Add(GetOwner()); // Ignore actor with component
+
+	// Do sphere overlap
+	UKismetSystemLibrary::SphereOverlapActors(
+		GetWorld(),
+		ScanLocation,
+		Radius,
+		ObjectTypes,
+		nullptr, // Filter by class (null for all)
+		IgnoredActors,
+		OverlappingActors
+	);
+
+	// Get entities with UAIComponent
+	NearbyEntities.Empty();
+	for (AActor* Actor : OverlappingActors)
+	{
+		if (Actor->FindComponentByClass<UAIComponent>())
+		{
+			NearbyEntities.Add(Actor);
+		}
+	}
+
+	// Log (optional)
+	UE_LOG(LogTemp, Log, TEXT("Found %d entities with UAIComponent"), NearbyEntities.Num());
 }
 
 void UAIComponent::HandleMessage(FMessage Message)
 {
 	UE_LOG(LogTemp, Display, TEXT("FROM AI: Message reçu de %s : %s"), *Message.SenderID, *Message.Content);
+}
+
+void UAIComponent::HandleWebSocketMessage(const FString& Message)
+{
+	UE_LOG(LogTemp, Display, TEXT("Handled message: %s"), *Message);
 }
