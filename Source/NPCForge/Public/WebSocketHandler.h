@@ -9,10 +9,6 @@
 
 #include "WebSocketHandler.generated.h"
 
-/**
- * 
- */
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWebSocketMessageReceived, const FString&, Message);
 
 UCLASS()
@@ -23,10 +19,14 @@ class NPCFORGE_API UWebSocketHandler : public UObject
 public:
 	void Initialize();
 	void Close();
-	void SendMessage(const FString& Action, const FString& Message);
+	void SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody);
+	void ConnectAPI(const FString& Checksum);
+	void RegisterAPI(const FString& Checksum, const FString& Name, const FString& Prompt);
 
 	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
 	FOnWebSocketMessageReceived OnMessageReceived;
+
+	FString Token = TEXT("");
 
 private:
 	const FString ServerURL = TEXT("ws://127.0.0.1:3000/ws");

@@ -38,22 +38,22 @@ class NPCFORGE_API UMessageManager : public UWorldSubsystem
 public:
     UMessageManager();
 
-    // Envoi d'un message
+    // Send message
     UFUNCTION(BlueprintCallable)
     void SendMessage(const FString& SenderID, const FString& ReceiverID, const FString& Content);
 
-    // Récupération de tous les messages en temps réel
+    // Get all messages realtime
     UFUNCTION(BlueprintCallable)
     TArray<FMessage> GetAllMessages() const;
 
-    // Récupération de messages pour un NPC spécifique
+    // Get messages fo specific NPC
     UFUNCTION(BlueprintCallable)
     TArray<FMessage> GetMessagesForNPC(const FString& NPCID) const;
 
     UPROPERTY(BlueprintAssignable, Category = "Events")
     FOnAIMessageReceivedEvent NewMessageReceivedEvent;
 
-    // Fonction pour déclencher l'événement
+    // Trigger event
     UFUNCTION(BlueprintCallable, Category = "Events")
     void TriggerCustomEvent();
 

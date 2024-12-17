@@ -3,10 +3,13 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "MessageManager.h"
-#include "Http.h"
-#include "Json.h"
-#include "JsonUtilities.h"
 #include "WebSocketHandler.h"
+#include "SaveEntityState.h"
+#include "Kismet/GameplayStatics.h"
+#include "JsonObjectConverter.h"
+#include "Dom/JsonObject.h"
+#include "Serialization/JsonReader.h"
+#include "Serialization/JsonSerializer.h"
 
 #include "AIComponent.generated.h"
 
@@ -43,7 +46,7 @@ public:
 
 	void ScanEnvironment();
 
-	void ScanForNearbyEntities(float Radius, FVector ScanLocation);
+	void ScanForNearbyEntities(float Radius, const FVector &ScanLocation);
 
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
@@ -55,7 +58,11 @@ protected:
 	virtual void BeginPlay() override;
 
 private:
+	void SaveEntityState() const;
+	void LoadEntityState();
+	
 	TArray<AActor*> NearbyEntities;
+	bool bIsRegistered = false;
 	FString UniqueID;
 	UWebSocketHandler* WebSocketHandler;
 };

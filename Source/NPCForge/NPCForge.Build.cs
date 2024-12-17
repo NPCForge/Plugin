@@ -11,7 +11,6 @@ public class NPCForge : ModuleRules
             {
                 "Core",
                 "WebSockets",
-                "Http",
                 "Json",
                 "JsonUtilities",
             }

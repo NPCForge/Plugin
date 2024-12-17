@@ -17,24 +17,18 @@ void UWebSocketHandler::Initialize()
 	Socket->OnClosed().AddLambda([](int32 StatusCode, const FString& Reason, bool bWasClean) -> void {
 		// This code will run when the connection to the server has been terminated.
 		// Because of an error or a call to Socket->Close().
-			UE_LOG(LogTemp, Display, TEXT("Connection closed: %s"), *Reason);
+		UE_LOG(LogTemp, Display, TEXT("Connection closed: %s"), *Reason);
 	});
     
 	Socket->OnMessage().AddLambda([this](const FString& Message) -> void {
-		// Log le message reçu
-		UE_LOG(LogTemp, Display, TEXT("%s"), *Message);
-
 		OnMessageReceived.Broadcast(Message);
 	});
     
 	Socket->OnRawMessage().AddLambda([](const void* Data, SIZE_T Size, SIZE_T BytesRemaining) -> void {
-		// Log le message brut reçu en tant que chaîne de caractères
-		UE_LOG(LogTemp, Display, TEXT("Message brut reçu : %hs"), (const char*)Data);
 	});
     
 	Socket->OnMessageSent().AddLambda([](const FString& MessageString) -> void {
 		// This code is called after we sent a message to the server.
-			UE_LOG(LogTemp, Display, TEXT("%s"), *MessageString);
 	});
     
 	// And we finally connect to the server. 
@@ -46,20 +40,38 @@ void UWebSocketHandler::Close()
 	Socket->Close();
 }
 
-void UWebSocketHandler::SendMessage(const FString& Action, const FString& Message)
+void UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody)
 {
-	TSharedPtr<FJsonObject> JsonObject = MakeShareable(new FJsonObject());
-	JsonObject->SetStringField("action", Action);
-	JsonObject->SetStringField("message", Message);
+	if (!JsonBody.IsValid())
+	{
+		JsonBody = MakeShareable(new FJsonObject());
+	}
+	JsonBody->SetStringField("action", Action);
 
 	FString OutputString;
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
-	if (FJsonSerializer::Serialize(JsonObject.ToSharedRef(), Writer)) {
-		// Envoyer le message JSON via WebSocket
+	if (FJsonSerializer::Serialize(JsonBody.ToSharedRef(), Writer)) {
 		Socket->Send(OutputString);
 		UE_LOG(LogTemp, Display, TEXT("JSON message sent: %s"), *OutputString);
 	} else {
 		UE_LOG(LogTemp, Error, TEXT("Failed to serialize JSON"));
 	}
+}
+
+void UWebSocketHandler::ConnectAPI(const FString& Checksum)
+{
+	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+	JsonBody->SetStringField("checksum", Checksum);
+	SendMessage("Connection", JsonBody);
+}
+
+void UWebSocketHandler::RegisterAPI(const FString& Checksum, const FString& Name, const FString& Prompt)
+{
+	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+	JsonBody->SetStringField("checksum", Checksum);
+	JsonBody->SetStringField("API_KEY", "VDCAjPZ8jhDmXfsSufW2oZyU8SFZi48dRhA8zyKUjSRU3T1aBZ7E8FFIjdEM2X1d");
+	JsonBody->SetStringField("name", Name);
+	JsonBody->SetStringField("prompt", Prompt);
+	SendMessage("Register", JsonBody);
 }
 

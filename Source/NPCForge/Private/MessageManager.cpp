@@ -1,13 +1,9 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "MessageManager.h"
+﻿#include "MessageManager.h"
 
 UMessageManager::UMessageManager()
 {
 }
 
-// Implémentation de SendMessage pour déclencher l’événement après ajout
 void UMessageManager::SendMessage(const FString& SenderID, const FString& ReceiverID, const FString& Content)
 {
 	FMessage NewMessage(SenderID, ReceiverID, Content);
