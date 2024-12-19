@@ -6,22 +6,20 @@ void UAIComponent::SaveEntityState() const
 
 	SaveGameInstance->bIsRegistered = bIsRegistered;
 
-	if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, TEXT("SaveSlot1"), 0))
+	if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, *EntityChecksum, 0))
 	{
-		UE_LOG(LogTemp, Log, TEXT("Game saved successfully!"));
+		UE_LOG(LogTemp, Log, TEXT("[NPCForge:DataPersistence]: Game saved successfully on slot: %s"), *EntityChecksum);
 	}
 }
 
 void UAIComponent::LoadEntityState()
 {
-	if (UGameplayStatics::DoesSaveGameExist(TEXT("SaveSlot1"), 0))
+	UE_LOG(LogTemp, Log, TEXT("[NPCForge:DataPersistence]: Try loading data for slot = %s"), *EntityChecksum);
+	if (UGameplayStatics::DoesSaveGameExist(*EntityChecksum, 0))
 	{
-		USaveEntityState* LoadedGame = Cast<USaveEntityState>(UGameplayStatics::LoadGameFromSlot(TEXT("SaveSlot1"), 0));
-
-		if (LoadedGame)
+		if (const USaveEntityState* LoadedGame = Cast<USaveEntityState>(UGameplayStatics::LoadGameFromSlot(*EntityChecksum, 0)))
 		{
-			// bIsRegistered = LoadedGame->bIsRegistered;
-			bIsRegistered = false;
+			bIsRegistered = LoadedGame->bIsRegistered;
 		}
 	}
 }

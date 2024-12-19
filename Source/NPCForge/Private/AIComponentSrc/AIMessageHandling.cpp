@@ -4,7 +4,7 @@ void UAIComponent::SendMessageToNPC(const FString& ReceiverID, const FString& Co
 {
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
-		MessageManager->SendMessage(UniqueID, ReceiverID, Content);
+		MessageManager->SendMessage(EntityChecksum, ReceiverID, Content);
 	}
 }
 
@@ -12,7 +12,7 @@ TArray<FMessage> UAIComponent::GetReceivedMessages() const
 {
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
-		return MessageManager->GetMessagesForNPC(UniqueID);
+		return MessageManager->GetMessagesForNPC(EntityChecksum);
 	}
 	return TArray<FMessage>();
 }

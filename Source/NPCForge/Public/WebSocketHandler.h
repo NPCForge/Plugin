@@ -23,14 +23,16 @@ public:
 	void ConnectAPI(const FString& Checksum);
 	void RegisterAPI(const FString& Checksum, const FString& Name, const FString& Prompt);
 
+	void SetToken(const FString& Token);
+
 	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
 	FOnWebSocketMessageReceived OnMessageReceived;
 
-	FString Token = TEXT("");
 
 private:
 	const FString ServerURL = TEXT("ws://127.0.0.1:3000/ws");
 	const FString ServerProtocol = TEXT("ws");
+	FString Token = TEXT("");
 
 	TSharedPtr<IWebSocket> Socket = FWebSocketsModule::Get().CreateWebSocket(ServerURL, ServerProtocol);
 };

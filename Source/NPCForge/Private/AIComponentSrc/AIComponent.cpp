@@ -3,7 +3,7 @@
 UAIComponent::UAIComponent()
 {
 	WebSocketHandler = nullptr;
-	PrimaryComponentTick.bCanEverTick = false;
+	PrimaryComponentTick.bCanEverTick = true;
 }
 
 void UAIComponent::BeginPlay()
@@ -20,11 +20,11 @@ void UAIComponent::BeginPlay()
 		}
 	}
 
-	LoadEntityState();
-
 	// Generate checksum from name + prompt
 	const FString CombinedString = FString::Printf(TEXT("%s%s"), *UniqueName, *PersonalityPrompt);
-	UniqueID = FMD5::HashAnsiString(*CombinedString);
+	EntityChecksum = FMD5::HashAnsiString(*CombinedString);
+	
+	LoadEntityState();
 	
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
@@ -38,17 +38,14 @@ void UAIComponent::BeginPlay()
 	// Testing environment scanning
 	// ScanEnvironment();
 
-	// if (UniqueID == "7543525dcb1f85031029a54e10cab089")
+	// if (EntityChecksum == "7543525dcb1f85031029a54e10cab089")
 	// 	WebSocketHandler->SendMessage("TakeDecision", "Hello from unreal engine!");
 
-	// if (!bIsRegistered) {
-	// 	WebSocketHandler->RegisterAPI(UniqueID, UniqueName, PersonalityPrompt);
-	// 	bIsRegistered = true;
-	// 	UE_LOG(LogTemp, Warning, TEXT("Register entity!"));
-	// } else {
-	// 	WebSocketHandler->ConnectAPI(UniqueID);
-	// 	UE_LOG(LogTemp, Warning, TEXT("Login entity!"));
-	// }
+	if (!bIsRegistered) {
+		WebSocketHandler->RegisterAPI(EntityChecksum, UniqueName, PersonalityPrompt);
+	} else {
+		WebSocketHandler->ConnectAPI(EntityChecksum);
+	}
 }
 
 void UAIComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
@@ -62,10 +59,15 @@ void UAIComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
+	
 	// Placeholder for functionality that runs each tick.
 	if (GetOwner())
 	{
+		if (bIsConnected && !bTmpDidTakeDecision)
+		{
+			TakeDecision();
+			bTmpDidTakeDecision = true;
+		}
 		// Future functionality for NPCs could go here.
 	}
 }

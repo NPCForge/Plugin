@@ -27,6 +27,14 @@ FString ExtractGptMessage(const FString& Message)
 	return FString();
 }
 
+void UAIComponent::TakeDecision() const
+{
+	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+	JsonBody->SetStringField("message", "Hello From Unreal Engine");
+	WebSocketHandler->SendMessage("TakeDecision", JsonBody);
+}
+
+
 void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 {
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
@@ -34,6 +42,11 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 	TSharedPtr<FJsonObject> JsonObject;
 	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
 	{
+		if (JsonObject->GetStringField("status") == TEXT("error"))
+		{
+			UE_LOG(LogTemp, Error, TEXT("[NPCForge:WebsocketCommunication]: Error received from API: %s"), *JsonObject->GetStringField("message"));
+			return;
+		}
 		for (const auto& Pair : JsonObject->Values)
 		{
 			FString Key = Pair.Key;
@@ -41,18 +54,25 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 			if (Pair.Value->Type == EJson::String)
 			{
 				FString Value = Pair.Value->AsString();
-				UE_LOG(LogTemp, Log, TEXT("Key: %s, Value: %s"), *Key, *Value);
 				
 				if (Key == "route")
 				{
 					if (Value == "Register")
 					{
-						UE_LOG(LogTemp, Log, TEXT("Handle Register Logic"));
-						WebSocketHandler->Token = JsonObject->GetStringField(TEXT("token"));
+						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: Handle Register Logic"));
+						WebSocketHandler->SetToken(JsonObject->GetStringField(TEXT("token")));
+						bIsRegistered = true;
+						bIsConnected = true;
 					}
-					else if (Value == "TakeDecision")
+					else if (Value == "Connection")
 					{
-						UE_LOG(LogTemp, Log, TEXT("Handle TakeDecision Logic"));
+						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: Handle Connection Logic"));
+						WebSocketHandler->SetToken(JsonObject->GetStringField(TEXT("token")));
+						bIsConnected = true;
+					} else if (Value == "MakeDecision")
+					{
+						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: Handle TakeDecision Logic"));
+						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: %s"), *JsonObject->GetStringField("message"));
 					}
 				}
 			}
@@ -60,6 +80,6 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("Failed to parse JSON: %s"), *JsonString);
+		UE_LOG(LogTemp, Error, TEXT("[NPCForge:WebSocketCommunication]: Failed to parse JSON: %s"), *JsonString);
 	}
 }

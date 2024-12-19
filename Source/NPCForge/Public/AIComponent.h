@@ -19,22 +19,23 @@ class NPCFORGE_API UAIComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Constructor: Sets default values and enables ticking for the component.
+	// Base Class
 	UAIComponent();
-
-	// Called every frame, if ticking is enabled on this component.
-	// @param DeltaTime - The time in seconds since the last frame.
-	// @param TickType - The type of tick (e.g., game logic or physics).
-	// @param ThisTickFunction - Information about this specific tick function.
+	
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+	
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	// Store the personality prompt for the NPC
+	
+	// Properties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString PersonalityPrompt;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString UniqueName;
+
 	
+	// AI Message Handling
 	UFUNCTION(BlueprintCallable)
 	void SendMessageToNPC(const FString& ReceiverID, const FString& Content);
 
@@ -44,25 +45,35 @@ public:
 	UFUNCTION()
 	void HandleMessage(FMessage Message);
 
+
+	// Environment Discovering
 	void ScanEnvironment();
 
 	void ScanForNearbyEntities(float Radius, const FVector &ScanLocation);
 
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	// WebSocket Communication
 	UFUNCTION()
 	void HandleWebSocketMessage(const FString& Message);
 
+	void TakeDecision() const;
+
 protected:
-	// Called when the game starts or when the component is spawned.
+	// Base Class
 	virtual void BeginPlay() override;
 
 private:
+	// Data Persistence
 	void SaveEntityState() const;
 	void LoadEntityState();
-	
+
+	// Attributes
 	TArray<AActor*> NearbyEntities;
-	bool bIsRegistered = false;
-	FString UniqueID;
 	UWebSocketHandler* WebSocketHandler;
+	bool bIsRegistered = false;
+	bool bIsConnected = false;
+	FString EntityChecksum;
+
+
+	bool bTmpDidTakeDecision = false;
 };

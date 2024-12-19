@@ -7,17 +7,17 @@ void UWebSocketHandler::Initialize()
 {
 	// We bind all available events
 	Socket->OnConnected().AddLambda([]() -> void {
-		UE_LOG(LogTemp, Display, TEXT("Connected"));
+		UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: Connected"));
 	});
     
 	Socket->OnConnectionError().AddLambda([](const FString & Error) -> void {
-		UE_LOG(LogTemp, Display, TEXT("Connection error: %s"), *Error);
+		UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: Connection error: %s"), *Error);
 	});
     
 	Socket->OnClosed().AddLambda([](int32 StatusCode, const FString& Reason, bool bWasClean) -> void {
 		// This code will run when the connection to the server has been terminated.
 		// Because of an error or a call to Socket->Close().
-		UE_LOG(LogTemp, Display, TEXT("Connection closed: %s"), *Reason);
+		UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: Connection closed: %s"), *Reason);
 	});
     
 	Socket->OnMessage().AddLambda([this](const FString& Message) -> void {
@@ -47,16 +47,24 @@ void UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObjec
 		JsonBody = MakeShareable(new FJsonObject());
 	}
 	JsonBody->SetStringField("action", Action);
+	JsonBody->SetStringField("token", Token);
 
 	FString OutputString;
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
 	if (FJsonSerializer::Serialize(JsonBody.ToSharedRef(), Writer)) {
 		Socket->Send(OutputString);
-		UE_LOG(LogTemp, Display, TEXT("JSON message sent: %s"), *OutputString);
+		UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: JSON message sent: %s"), *OutputString);
 	} else {
-		UE_LOG(LogTemp, Error, TEXT("Failed to serialize JSON"));
+		UE_LOG(LogTemp, Error, TEXT("[NPCForge:WebSocketHandler]: Failed to serialize JSON"));
 	}
 }
+
+void UWebSocketHandler::SetToken(const FString& NewToken)
+{
+	UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: Setting token: %s"), *NewToken);
+	this->Token = NewToken;
+}
+
 
 void UWebSocketHandler::ConnectAPI(const FString& Checksum)
 {
