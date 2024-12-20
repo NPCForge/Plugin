@@ -22,6 +22,7 @@ public:
 	void SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody);
 	void ConnectAPI(const FString& Checksum);
 	void RegisterAPI(const FString& Checksum, const FString& Name, const FString& Prompt);
+	void DisconnectAPI();
 
 	void SetToken(const FString& Token);
 

@@ -5,7 +5,6 @@
 
 void UWebSocketHandler::Initialize()
 {
-	// We bind all available events
 	Socket->OnConnected().AddLambda([]() -> void {
 		UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: Connected"));
 	});
@@ -15,8 +14,6 @@ void UWebSocketHandler::Initialize()
 	});
     
 	Socket->OnClosed().AddLambda([](int32 StatusCode, const FString& Reason, bool bWasClean) -> void {
-		// This code will run when the connection to the server has been terminated.
-		// Because of an error or a call to Socket->Close().
 		UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: Connection closed: %s"), *Reason);
 	});
     
@@ -28,15 +25,14 @@ void UWebSocketHandler::Initialize()
 	});
     
 	Socket->OnMessageSent().AddLambda([](const FString& MessageString) -> void {
-		// This code is called after we sent a message to the server.
 	});
-    
-	// And we finally connect to the server. 
+	
 	Socket->Connect();
 }
 
 void UWebSocketHandler::Close()
 {
+	DisconnectAPI();
 	Socket->Close();
 }
 
@@ -81,5 +77,12 @@ void UWebSocketHandler::RegisterAPI(const FString& Checksum, const FString& Name
 	JsonBody->SetStringField("name", Name);
 	JsonBody->SetStringField("prompt", Prompt);
 	SendMessage("Register", JsonBody);
+}
+
+void UWebSocketHandler::DisconnectAPI()
+{
+	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+	SendMessage("Disconnect", JsonBody);
+	SetToken("");
 }
 

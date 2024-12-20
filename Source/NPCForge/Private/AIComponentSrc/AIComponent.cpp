@@ -10,6 +10,10 @@ void UAIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	FString SavePath = FPaths::ProjectSavedDir() + TEXT("SaveGames/");
+	UE_LOG(LogTemp, Log, TEXT("[LOIJFENCX8NPCForge:AIComponent]: uyàpèht)^çk-("
+						   "$ùm;bgr=*!:,vExpected save path: %s"), *SavePath);
+
 	if (!WebSocketHandler)
 	{
 		WebSocketHandler = NewObject<UWebSocketHandler>(this);
@@ -50,8 +54,8 @@ void UAIComponent::BeginPlay()
 
 void UAIComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	SaveEntityState();
 	WebSocketHandler->Close();
+	SaveEntityState();
 	
 	Super::EndPlay(EndPlayReason);
 }
