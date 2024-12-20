@@ -10,10 +10,6 @@ void UAIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	FString SavePath = FPaths::ProjectSavedDir() + TEXT("SaveGames/");
-	UE_LOG(LogTemp, Log, TEXT("[LOIJFENCX8NPCForge:AIComponent]: uyàpèht)^çk-("
-						   "$ùm;bgr=*!:,vExpected save path: %s"), *SavePath);
-
 	if (!WebSocketHandler)
 	{
 		WebSocketHandler = NewObject<UWebSocketHandler>(this);
@@ -38,9 +34,7 @@ void UAIComponent::BeginPlay()
 	
 	// auto send message for debug purpose
 	// SendMessageToNPC("5D00E2C44F143DF62A45699B8A116C34", "content");
-
-	// Testing environment scanning
-	// ScanEnvironment();
+	
 
 	// if (EntityChecksum == "7543525dcb1f85031029a54e10cab089")
 	// 	WebSocketHandler->SendMessage("TakeDecision", "Hello from unreal engine!");
@@ -69,7 +63,9 @@ void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	{
 		if (bIsConnected && !bTmpDidTakeDecision)
 		{
-			TakeDecision();
+			ScanEnvironment();
+			// GenerateEnvironmentPrompt();
+			// TakeDecision();
 			bTmpDidTakeDecision = true;
 		}
 		// Future functionality for NPCs could go here.

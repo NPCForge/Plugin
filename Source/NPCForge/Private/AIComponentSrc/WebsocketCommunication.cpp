@@ -42,9 +42,9 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 	TSharedPtr<FJsonObject> JsonObject;
 	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
 	{
-		if (JsonObject->GetStringField("status") == TEXT("error"))
+		if (JsonObject->GetStringField(TEXT("status")) == TEXT("error"))
 		{
-			UE_LOG(LogTemp, Error, TEXT("[NPCForge:WebsocketCommunication]: Error received from API: %s"), *JsonObject->GetStringField("message"));
+			UE_LOG(LogTemp, Error, TEXT("[NPCForge:WebsocketCommunication]: Error received from API: %s"), *JsonObject->GetStringField(TEXT("message")));
 			return;
 		}
 		for (const auto& Pair : JsonObject->Values)
@@ -72,7 +72,7 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 					} else if (Value == "MakeDecision")
 					{
 						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: Handle TakeDecision Logic"));
-						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: %s"), *JsonObject->GetStringField("message"));
+						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: %s"), *JsonObject->GetStringField(TEXT("message")));
 					}
 				}
 			}

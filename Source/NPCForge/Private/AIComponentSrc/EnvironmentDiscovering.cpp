@@ -1,5 +1,26 @@
 ﻿#include "AIComponent.h"
 
+FString UAIComponent::GenerateEnvironmentPrompt()
+{
+	UE_LOG(LogTemp, Log, TEXT("[NPCForge:EnvironmentDiscovering]: Called"));
+	
+	for (AActor* Actor : NearbyEntities)
+	{
+		if (UAIComponent* AIComponent = Actor->FindComponentByClass<UAIComponent>())
+		{
+			FString EntityUniqueName = AIComponent->UniqueName;
+
+			UE_LOG(LogTemp, Log, TEXT("[NPCForge:EnvironmentDiscovering]: Found entity with UniqueName: %s"), *EntityUniqueName);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[NPCForge:EnvironmentDiscovering]: Actor does not have a UAIComponent!"));
+		}
+	}
+	return "";
+}
+
+
 void UAIComponent::ScanEnvironment()
 {
 	// scan for nearby entities with a 1000 radius (average), and actual owner position
@@ -30,12 +51,18 @@ void UAIComponent::ScanForNearbyEntities(float Radius, const FVector &ScanLocati
 	NearbyEntities.Empty();
 	for (AActor* Actor : OverlappingActors)
 	{
-		if (Actor->FindComponentByClass<UAIComponent>())
+		UAIComponent* AIComp = Actor->FindComponentByClass<UAIComponent>();
+		if (AIComp)
 		{
+			UE_LOG(LogTemp, Log, TEXT("[NPCForge:EnvironmentDiscovering]: Actor %s has UAIComponent"), *Actor->GetName());
 			NearbyEntities.Add(Actor);
+		}
+		else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("[NPCForge:EnvironmentDiscovering]: Actor %s does not have UAIComponent"), *Actor->GetName());
 		}
 	}
 
 	// Log (optional)
-	UE_LOG(LogTemp, Log, TEXT("Found %d entities with UAIComponent"), NearbyEntities.Num());
+	UE_LOG(LogTemp, Log, TEXT("[NPCForge:EnvironmentDiscovering]: Found %d entities with UAIComponent"), NearbyEntities.Num());
 }

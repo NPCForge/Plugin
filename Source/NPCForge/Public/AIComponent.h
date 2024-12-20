@@ -47,6 +47,8 @@ public:
 
 
 	// Environment Discovering
+	FString GenerateEnvironmentPrompt();
+	
 	void ScanEnvironment();
 
 	void ScanForNearbyEntities(float Radius, const FVector &ScanLocation);
