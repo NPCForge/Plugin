@@ -47,18 +47,16 @@ public:
 
 
 	// Environment Discovering
-	FString GenerateEnvironmentPrompt();
-	
-	void ScanEnvironment();
+	FString ScanEnvironment();
 
-	void ScanForNearbyEntities(float Radius, const FVector &ScanLocation);
+	FString ScanForNearbyEntities(float Radius, const FVector &ScanLocation);
 
 
 	// WebSocket Communication
 	UFUNCTION()
 	void HandleWebSocketMessage(const FString& Message);
 
-	void TakeDecision() const;
+	void TakeDecision(const FString& Prompt) const;
 
 protected:
 	// Base Class
@@ -70,12 +68,10 @@ private:
 	void LoadEntityState();
 
 	// Attributes
-	TArray<AActor*> NearbyEntities;
 	UWebSocketHandler* WebSocketHandler;
 	bool bIsRegistered = false;
 	bool bIsConnected = false;
 	FString EntityChecksum;
-
 
 	bool bTmpDidTakeDecision = false;
 };

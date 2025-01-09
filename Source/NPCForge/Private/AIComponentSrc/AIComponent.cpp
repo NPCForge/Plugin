@@ -10,6 +10,8 @@ void UAIComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::BeginPlay]: %s joined the game!"), *UniqueName);
+
 	if (!WebSocketHandler)
 	{
 		WebSocketHandler = NewObject<UWebSocketHandler>(this);
@@ -31,13 +33,6 @@ void UAIComponent::BeginPlay()
 		// Subscribe to message reception event
 		MessageManager->NewMessageReceivedEvent.AddDynamic(this, &UAIComponent::HandleMessage);
 	}
-	
-	// auto send message for debug purpose
-	// SendMessageToNPC("5D00E2C44F143DF62A45699B8A116C34", "content");
-	
-
-	// if (EntityChecksum == "7543525dcb1f85031029a54e10cab089")
-	// 	WebSocketHandler->SendMessage("TakeDecision", "Hello from unreal engine!");
 
 	if (!bIsRegistered) {
 		WebSocketHandler->RegisterAPI(EntityChecksum, UniqueName, PersonalityPrompt);
@@ -63,11 +58,11 @@ void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	{
 		if (bIsConnected && !bTmpDidTakeDecision)
 		{
-			ScanEnvironment();
-			// GenerateEnvironmentPrompt();
-			// TakeDecision();
+			const FString EnvironmentPrompt = ScanEnvironment();
+			
+			 TakeDecision(EnvironmentPrompt); 
+
 			bTmpDidTakeDecision = true;
 		}
-		// Future functionality for NPCs could go here.
 	}
 }

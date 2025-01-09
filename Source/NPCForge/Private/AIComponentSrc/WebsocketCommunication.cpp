@@ -27,10 +27,10 @@ FString ExtractGptMessage(const FString& Message)
 	return FString();
 }
 
-void UAIComponent::TakeDecision() const
+void UAIComponent::TakeDecision(const FString& Prompt) const
 {
 	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	JsonBody->SetStringField("message", "Hello From Unreal Engine");
+	JsonBody->SetStringField("message", Prompt);
 	WebSocketHandler->SendMessage("TakeDecision", JsonBody);
 }
 
