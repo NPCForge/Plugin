@@ -13,6 +13,7 @@ public class NPCForge : ModuleRules
                 "WebSockets",
                 "Json",
                 "JsonUtilities",
+                "AIModule",
             }
         );
 

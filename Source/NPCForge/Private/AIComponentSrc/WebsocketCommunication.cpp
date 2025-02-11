@@ -71,8 +71,8 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 						bIsConnected = true;
 					} else if (Value == "MakeDecision")
 					{
-						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: Handle TakeDecision Logic"));
-						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: %s"), *JsonObject->GetStringField(TEXT("message")));
+						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: Handle MakeDecision Logic"));
+						HandleDecision(*JsonObject->GetStringField(TEXT("message")));
 					}
 				}
 			}

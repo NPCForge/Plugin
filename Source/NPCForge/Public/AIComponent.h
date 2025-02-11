@@ -7,6 +7,7 @@
 #include "SaveEntityState.h"
 #include "Kismet/GameplayStatics.h"
 #include "JsonObjectConverter.h"
+#include "AIController.h"
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
@@ -57,6 +58,11 @@ public:
 	void HandleWebSocketMessage(const FString& Message);
 
 	void TakeDecision(const FString& Prompt) const;
+	void HandleDecision(const FString& Response);
+
+	AActor* FindNPCByName(const FString& NpcName);
+
+	void AddAIController();
 
 protected:
 	// Base Class
@@ -73,5 +79,5 @@ private:
 	bool bIsConnected = false;
 	FString EntityChecksum;
 
-	bool bTmpDidTakeDecision = false;
+	bool bIsBusy = false;
 };

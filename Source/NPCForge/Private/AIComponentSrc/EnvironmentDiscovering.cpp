@@ -4,7 +4,7 @@ FString UAIComponent::ScanEnvironment()
 {
 	FString EnvironmentPrompt = "";
 
-	EnvironmentPrompt += ScanForNearbyEntities(1000, GetOwner()->GetActorLocation());
+	EnvironmentPrompt += ScanForNearbyEntities(50000, GetOwner()->GetActorLocation());
 
 	UE_LOG(LogTemp, Display, TEXT("[NPCForge:ScanEnvironment]: %s"), *EnvironmentPrompt);
 	return EnvironmentPrompt;

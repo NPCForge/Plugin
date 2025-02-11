@@ -41,6 +41,37 @@ void UAIComponent::BeginPlay()
 	}
 }
 
+void UAIComponent::AddAIController()
+{
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (!OwnerPawn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UMyCustomComponent: Owner is not a Pawn!"));
+		return;
+	}
+
+	// Vérifier si l'owner possède déjà un AIController
+	if (!OwnerPawn->GetController())
+	{
+		// Spawner et posséder un AIController
+		AAIController* NewAIController = GetWorld()->SpawnActor<AAIController>(AAIController::StaticClass());
+		if (NewAIController)
+		{
+			NewAIController->Possess(OwnerPawn);
+			UE_LOG(LogTemp, Warning, TEXT("AIController ajouté dynamiquement à %s"), *OwnerPawn->GetName());
+		}
+		else
+		{
+			UE_LOG(LogTemp, Error, TEXT("Impossible de créer l'AIController"));
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%s a déjà un AIController"), *OwnerPawn->GetName());
+	}
+}
+
+
 void UAIComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
 	WebSocketHandler->Close();
@@ -56,13 +87,13 @@ void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	// Placeholder for functionality that runs each tick.
 	if (GetOwner())
 	{
-		if (bIsConnected && !bTmpDidTakeDecision)
+		if (bIsConnected && !bIsBusy && EntityChecksum == "3fc289f3001056ad01357a00efd76ac3")
 		{
 			const FString EnvironmentPrompt = ScanEnvironment();
 			
-			 TakeDecision(EnvironmentPrompt); 
+			TakeDecision(EnvironmentPrompt);
 
-			bTmpDidTakeDecision = true;
+			bIsBusy = true;
 		}
 	}
 }

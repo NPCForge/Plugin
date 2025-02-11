@@ -5,6 +5,7 @@ void UAIComponent::SaveEntityState() const
 	USaveEntityState* SaveGameInstance = Cast<USaveEntityState>(UGameplayStatics::CreateSaveGameObject(USaveEntityState::StaticClass()));
 
 	SaveGameInstance->bIsRegistered = bIsRegistered;
+	UE_LOG(LogTemp, Log, TEXT("[NPCForge:DataPersistence]: bIsRegistered value: %s"), bIsRegistered ? TEXT("true") : TEXT("false"));
 
 	if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, *EntityChecksum, 0))
 	{
