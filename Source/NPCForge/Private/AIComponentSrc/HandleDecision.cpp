@@ -34,6 +34,37 @@ AActor* UAIComponent::FindNPCByName(const FString& NpcName)
 	return nullptr;
 }
 
+bool UAIComponent::MoveToNPC(AActor* NPC)
+{
+	APawn* OwnerPawn = Cast<APawn>(GetOwner());
+	if (!OwnerPawn)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find owner"));
+		return false;
+	}
+
+	AAIController* AIController = Cast<AAIController>(OwnerPawn->GetController());
+	if (AIController)
+	{
+		AIController->MoveToActor(NPC, 5.0f);
+	} else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find AIController"));
+		return false;
+	}
+	return true;
+}
+
+void UAIComponent::TalkToNPC(AActor* NPC)
+{
+	UAIComponent* AIComp = NPC->FindComponentByClass<UAIComponent>();
+
+	if (AIComp)
+	{
+		SendMessageToNPC(AIComp->EntityChecksum, "Hello");
+	}
+}
+
 void UAIComponent::HandleDecision(const FString& Response)
 {
 	UE_LOG(LogTemp, Log, TEXT("[NPCForge:HandleDecision]: %s"), *Response);
@@ -47,23 +78,11 @@ void UAIComponent::HandleDecision(const FString& Response)
 
 		if (TargetActor)
 		{
-			APawn* OwnerPawn = Cast<APawn>(GetOwner());
-			if (!OwnerPawn)
+			if (MoveToNPC(TargetActor))
 			{
-				UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find owner"));
-				return;
+				// Add something to wait until npc has arrived at destination
+				TalkToNPC(TargetActor);
 			}
-
-			AAIController* AIController = Cast<AAIController>(OwnerPawn->GetController());
-			if (AIController)
-			{
-				UE_LOG(LogTemp, Log, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("MOVING"));
-				AIController->MoveToActor(TargetActor, 5.0f);
-			} else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find AIController"));
-			}
-			// implement talkto npc
 		} else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find entity"));

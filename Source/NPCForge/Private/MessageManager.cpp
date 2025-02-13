@@ -9,7 +9,7 @@ void UMessageManager::SendMessage(const FString& SenderID, const FString& Receiv
 	FMessage NewMessage(SenderID, ReceiverID, Content);
 	MessageLog.Add(NewMessage);
 
-	UE_LOG(LogTemp, Display, TEXT("[NPCForge:MessageManager]: Sending message: Sender=%s, Receiver=%s, Content=%s"), *NewMessage.SenderID, *NewMessage.ReceiverID, *NewMessage.Content);
+	UE_LOG(LogTemp, Display, TEXT("[NPCForge:MessageManager]: Sending message: Sender=%s, Receiver=%s, Content=%s"), *NewMessage.SenderChecksum, *NewMessage.ReceiverChecksum, *NewMessage.Content);
 
 	NewMessageReceivedEvent.Broadcast(NewMessage);
 }
@@ -24,7 +24,7 @@ TArray<FMessage> UMessageManager::GetMessagesForNPC(const FString& NPCID) const
 	TArray<FMessage> FilteredMessages;
 	for (const FMessage& Message : MessageLog)
 	{
-		if (Message.ReceiverID == NPCID)
+		if (Message.ReceiverChecksum == NPCID)
 		{
 			FilteredMessages.Add(Message);
 		}

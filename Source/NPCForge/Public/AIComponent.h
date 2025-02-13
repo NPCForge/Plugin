@@ -35,10 +35,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	FString UniqueName;
 
+	FString EntityChecksum;
+
 	
 	// AI Message Handling
 	UFUNCTION(BlueprintCallable)
-	void SendMessageToNPC(const FString& ReceiverID, const FString& Content);
+	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content);
 
 	UFUNCTION(BlueprintCallable)
 	TArray<FMessage> GetReceivedMessages() const;
@@ -62,6 +64,9 @@ public:
 
 	AActor* FindNPCByName(const FString& NpcName);
 
+	bool MoveToNPC(AActor *NPC);
+	void TalkToNPC(AActor *NPC);
+
 	void AddAIController();
 
 protected:
@@ -77,7 +82,6 @@ private:
 	UWebSocketHandler* WebSocketHandler;
 	bool bIsRegistered = false;
 	bool bIsConnected = false;
-	FString EntityChecksum;
 
 	bool bIsBusy = false;
 };

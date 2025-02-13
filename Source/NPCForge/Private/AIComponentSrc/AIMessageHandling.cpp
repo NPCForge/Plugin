@@ -1,10 +1,10 @@
 ﻿#include "AIComponent.h"
 
-void UAIComponent::SendMessageToNPC(const FString& ReceiverID, const FString& Content)
+void UAIComponent::SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content)
 {
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
-		MessageManager->SendMessage(EntityChecksum, ReceiverID, Content);
+		MessageManager->SendMessage(EntityChecksum, ReceiverChecksum, Content);
 	}
 }
 
@@ -19,6 +19,6 @@ TArray<FMessage> UAIComponent::GetReceivedMessages() const
 
 void UAIComponent::HandleMessage(FMessage Message)
 {
-	UE_LOG(LogTemp, Display, TEXT("FROM AI: Message reçu de %s : %s"), *Message.SenderID, *Message.Content);
+	UE_LOG(LogTemp, Display, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
 	// WebSocketHandler->SendMessage("TakeDecision", Message.Content);
 }

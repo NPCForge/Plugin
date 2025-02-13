@@ -12,10 +12,10 @@ struct FMessage
     GENERATED_BODY()
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FString SenderID;
+    FString SenderChecksum;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-    FString ReceiverID;
+    FString ReceiverChecksum;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FString Content;
@@ -23,9 +23,9 @@ struct FMessage
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FDateTime Timestamp;
 
-    FMessage() : SenderID(""), ReceiverID(""), Content(""), Timestamp(FDateTime::Now()) {}
-    FMessage(FString InSenderID, FString InReceiverID, FString InContent)
-        : SenderID(InSenderID), ReceiverID(InReceiverID), Content(InContent), Timestamp(FDateTime::Now()) {}
+    FMessage() : SenderChecksum(""), ReceiverChecksum(""), Content(""), Timestamp(FDateTime::Now()) {}
+    FMessage(FString InSenderChecksum, FString InReceiverChecksum, FString InContent)
+        : SenderChecksum(InSenderChecksum), ReceiverChecksum(InReceiverChecksum), Content(InContent), Timestamp(FDateTime::Now()) {}
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAIMessageReceivedEvent, FMessage, Message);
@@ -40,7 +40,7 @@ public:
 
     // Send message
     UFUNCTION(BlueprintCallable)
-    void SendMessage(const FString& SenderID, const FString& ReceiverID, const FString& Content);
+    void SendMessage(const FString& SenderChecksum, const FString& ReceiverChecksum, const FString& Content);
 
     // Get all messages realtime
     UFUNCTION(BlueprintCallable)
@@ -48,7 +48,7 @@ public:
 
     // Get messages fo specific NPC
     UFUNCTION(BlueprintCallable)
-    TArray<FMessage> GetMessagesForNPC(const FString& NPCID) const;
+    TArray<FMessage> GetMessagesForNPC(const FString& NPCChecksum) const;
 
     UPROPERTY(BlueprintAssignable, Category = "Events")
     FOnAIMessageReceivedEvent NewMessageReceivedEvent;
