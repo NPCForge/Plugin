@@ -19,6 +19,9 @@ TArray<FMessage> UAIComponent::GetReceivedMessages() const
 
 void UAIComponent::HandleMessage(FMessage Message)
 {
-	UE_LOG(LogTemp, Display, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
-	// WebSocketHandler->SendMessage("TakeDecision", Message.Content);
+	if (Message.ReceiverChecksum == EntityChecksum)
+	{
+		UE_LOG(LogTemp, Display, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
+		// WebSocketHandler->SendMessage("TakeDecision", *Message.Content);
+	}
 }
