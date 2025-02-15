@@ -87,7 +87,7 @@ void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	// Placeholder for functionality that runs each tick.
 	if (GetOwner())
 	{
-		if (bIsConnected && !bIsBusy && EntityChecksum == "3fc289f3001056ad01357a00efd76ac3")
+		if (bIsConnected && !bIsBusy && EntityChecksum == "b6767fbc10c2d571e190f82315706017")
 		{
 			const FString EnvironmentPrompt = ScanEnvironment();
 			
