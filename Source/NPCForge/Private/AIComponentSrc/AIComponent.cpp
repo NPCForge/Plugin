@@ -21,7 +21,7 @@ void UAIComponent::BeginPlay()
 			WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
 		}
 	}
-
+	
 	// Generate checksum from name + prompt
 	const FString CombinedString = FString::Printf(TEXT("%s%s"), *UniqueName, *PersonalityPrompt);
 	EntityChecksum = FMD5::HashAnsiString(*CombinedString);
@@ -37,6 +37,14 @@ void UAIComponent::BeginPlay()
 		WebSocketHandler->RegisterAPI(EntityChecksum, UniqueName, PersonalityPrompt);
 	} else {
 		WebSocketHandler->ConnectAPI(EntityChecksum);
+	}
+}
+
+void UAIComponent::TriggerSendMessageEvent(FString Message)
+{
+	if (OnSendMessage.IsBound())
+	{
+		OnSendMessage.Broadcast(Message);
 	}
 }
 

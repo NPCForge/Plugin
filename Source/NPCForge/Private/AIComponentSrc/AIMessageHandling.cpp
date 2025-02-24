@@ -4,8 +4,8 @@ void UAIComponent::SendMessageToNPC(const FString& ReceiverChecksum, const FStri
 {
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
-		// Trigger un event callable en blueprint
 		MessageManager->SendMessage(EntityChecksum, ReceiverChecksum, Content);
+		TriggerSendMessageEvent(Content);
 	}
 }
 

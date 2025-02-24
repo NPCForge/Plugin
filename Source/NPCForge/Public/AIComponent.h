@@ -14,6 +14,8 @@
 
 #include "AIComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSendMessage, FString, Message);
+
 UCLASS(ClassGroup=(AI), meta=(BlueprintSpawnableComponent, DisplayName="NPCForge", ToolTip="Mark as NPC"))
 class NPCFORGE_API UAIComponent : public UActorComponent
 {
@@ -27,6 +29,12 @@ public:
 	
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
+	// display chat
+	UPROPERTY(BlueprintAssignable, Category="Events")
+	FOnSendMessage OnSendMessage;
+
+	UFUNCTION(BlueprintCallable, Category="MyComponent")
+	void TriggerSendMessageEvent(FString Value);
 	
 	// Properties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -36,7 +44,6 @@ public:
 	FString UniqueName;
 
 	FString EntityChecksum;
-
 	
 	// AI Message Handling
 	UFUNCTION(BlueprintCallable)
