@@ -29,7 +29,7 @@ public:
 	
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	// display chat
+	// Display Chat
 	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnSendMessage OnSendMessage;
 
@@ -54,6 +54,9 @@ public:
 
 	UFUNCTION()
 	void HandleMessage(FMessage Message);
+
+	UFUNCTION(BlueprintCallable, Category="AI")
+	void DelayResponse(FMessage Message);
 
 
 	// Environment Discovering
@@ -85,6 +88,8 @@ private:
 	void SaveEntityState() const;
 	void LoadEntityState();
 
+	FTimerHandle ResponseTimerHandle;
+	
 	// Attributes
 	UWebSocketHandler* WebSocketHandler;
 	bool bIsRegistered = false;
