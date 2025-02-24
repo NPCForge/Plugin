@@ -34,4 +34,3 @@ void AGameManager::HandleMessage(FMessage Message)
 {
 	UE_LOG(LogTemp, Log, TEXT("[AGameManager::HandleMessage]: Message received from %s to %s : %s"), *Message.SenderChecksum, *Message.ReceiverChecksum , *Message.Content);
 }
-

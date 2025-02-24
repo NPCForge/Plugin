@@ -73,6 +73,24 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 					{
 						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: Handle MakeDecision Logic"));
 						HandleDecision(*JsonObject->GetStringField(TEXT("message")));
+					} else if (Value == "TalkTo")
+					{
+						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle TalkTo Logic"));
+						// UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Message: %s"), *JsonObject->GetStringField(TEXT("message")))
+						FString InputString = *JsonObject->GetStringField(TEXT("message"));
+						FString ExtractedID, ExtractedMessage;
+
+						if (InputString.StartsWith(TEXT("@")))
+						{
+							FString RightPart;
+							if (InputString.Split(TEXT(" "), &ExtractedID, &RightPart))
+							{
+								ExtractedID = ExtractedID.RightChop(1);
+								ExtractedMessage = RightPart;
+							}
+						}
+
+						SendMessageToNPC(ExtractedID, ExtractedMessage);
 					}
 				}
 			}

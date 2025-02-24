@@ -21,7 +21,7 @@ void UAIComponent::BeginPlay()
 			WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
 		}
 	}
-
+	
 	// Generate checksum from name + prompt
 	const FString CombinedString = FString::Printf(TEXT("%s%s"), *UniqueName, *PersonalityPrompt);
 	EntityChecksum = FMD5::HashAnsiString(*CombinedString);
@@ -30,7 +30,6 @@ void UAIComponent::BeginPlay()
 	
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
-		// Subscribe to message reception event
 		MessageManager->NewMessageReceivedEvent.AddDynamic(this, &UAIComponent::HandleMessage);
 	}
 
@@ -38,6 +37,14 @@ void UAIComponent::BeginPlay()
 		WebSocketHandler->RegisterAPI(EntityChecksum, UniqueName, PersonalityPrompt);
 	} else {
 		WebSocketHandler->ConnectAPI(EntityChecksum);
+	}
+}
+
+void UAIComponent::TriggerSendMessageEvent(FString Message)
+{
+	if (OnSendMessage.IsBound())
+	{
+		OnSendMessage.Broadcast(Message);
 	}
 }
 
@@ -58,11 +65,11 @@ void UAIComponent::AddAIController()
 		if (NewAIController)
 		{
 			NewAIController->Possess(OwnerPawn);
-			UE_LOG(LogTemp, Warning, TEXT("AIController ajouté dynamiquement à %s"), *OwnerPawn->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("AIController dynamically added to %s"), *OwnerPawn->GetName());
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("Impossible de créer l'AIController"));
+			UE_LOG(LogTemp, Error, TEXT("Unable to create AIController"));
 		}
 	}
 	else
@@ -87,7 +94,7 @@ void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	// Placeholder for functionality that runs each tick.
 	if (GetOwner())
 	{
-		if (bIsConnected && !bIsBusy && EntityChecksum == "3fc289f3001056ad01357a00efd76ac3")
+		if (bIsConnected && !bIsBusy && EntityChecksum == "b6767fbc10c2d571e190f82315706017")
 		{
 			const FString EnvironmentPrompt = ScanEnvironment();
 			

@@ -61,7 +61,7 @@ void UAIComponent::TalkToNPC(AActor* NPC)
 
 	if (AIComp)
 	{
-		SendMessageToNPC(AIComp->EntityChecksum, "Hello");
+		SendMessageToNPC(AIComp->EntityChecksum, "Who are you?");
 	}
 }
 
