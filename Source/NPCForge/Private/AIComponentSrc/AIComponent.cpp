@@ -30,7 +30,6 @@ void UAIComponent::BeginPlay()
 	
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
-		// Subscribe to message reception event
 		MessageManager->NewMessageReceivedEvent.AddDynamic(this, &UAIComponent::HandleMessage);
 	}
 
@@ -58,11 +57,11 @@ void UAIComponent::AddAIController()
 		if (NewAIController)
 		{
 			NewAIController->Possess(OwnerPawn);
-			UE_LOG(LogTemp, Warning, TEXT("AIController ajouté dynamiquement à %s"), *OwnerPawn->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("AIController dynamically added to %s"), *OwnerPawn->GetName());
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("Impossible de créer l'AIController"));
+			UE_LOG(LogTemp, Error, TEXT("Unable to create AIController"));
 		}
 	}
 	else
