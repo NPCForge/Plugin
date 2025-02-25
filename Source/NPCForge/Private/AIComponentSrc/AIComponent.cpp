@@ -57,10 +57,8 @@ void UAIComponent::AddAIController()
 		return;
 	}
 
-	// Vérifier si l'owner possède déjà un AIController
 	if (!OwnerPawn->GetController())
 	{
-		// Spawner et posséder un AIController
 		AAIController* NewAIController = GetWorld()->SpawnActor<AAIController>(AAIController::StaticClass());
 		if (NewAIController)
 		{

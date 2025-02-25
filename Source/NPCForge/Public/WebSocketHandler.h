@@ -29,7 +29,6 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
 	FOnWebSocketMessageReceived OnMessageReceived;
 
-
 private:
 	const FString ServerURL = TEXT("ws://127.0.0.1:3000/ws");
 	const FString ServerProtocol = TEXT("ws");
