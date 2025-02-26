@@ -20,11 +20,12 @@ void UAIComponent::DelayResponse(FMessage Message)
 
 		TimerManager.SetTimer(ResponseTimerHandle, [this, Message]()
 		{
-			UE_LOG(LogTemp, Display, TEXT("[UAIComponent::DelayResponse]: Should respond"));
-			// TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-			// JsonBody->SetStringField("interlocutor", Message.SenderChecksum);
-			// JsonBody->SetStringField("message", Message.Content);
-			// WebSocketHandler->SendMessage("TalkTo", JsonBody);
+			TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+			JsonBody->SetStringField("sender", Message.SenderChecksum);
+			JsonBody->SetStringField("message", Message.Content);
+			WebSocketHandler->SendMessage("NewMessage", JsonBody);
+
+			bIsBusy = false; 
 		}, DelayTime, false);
 	}
 }
@@ -34,7 +35,7 @@ void UAIComponent::HandleMessage(FMessage Message)
 	if (Message.ReceiverChecksum == EntityChecksum)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
-
+		
 		DelayResponse(Message);
 	}
 }
