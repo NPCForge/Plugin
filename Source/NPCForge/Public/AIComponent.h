@@ -49,8 +49,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content);
 
-	UFUNCTION(BlueprintCallable)
-	TArray<FMessage> GetReceivedMessages() const;
+	// UFUNCTION(BlueprintCallable)
+	// TArray<FMessage> GetReceivedMessages() const;
 
 	UFUNCTION()
 	void HandleMessage(FMessage Message);
@@ -75,7 +75,7 @@ public:
 	AActor* FindNPCByName(const FString& NpcName);
 
 	bool MoveToNPC(AActor *NPC);
-	void TalkToNPC(AActor *NPC);
+	void TalkToNPC(AActor *NPC, FString Message);
 
 	void AddAIController();
 

@@ -55,37 +55,52 @@ bool UAIComponent::MoveToNPC(AActor* NPC)
 	return true;
 }
 
-void UAIComponent::TalkToNPC(AActor* NPC)
+void UAIComponent::TalkToNPC(AActor* NPC, FString Message)
 {
 	UAIComponent* AIComp = NPC->FindComponentByClass<UAIComponent>();
 
 	if (AIComp)
 	{
-		SendMessageToNPC(AIComp->EntityChecksum, "Who are you?");
+		SendMessageToNPC(AIComp->EntityChecksum, Message);
 	}
 }
 
 void UAIComponent::HandleDecision(const FString& Response)
 {
 	UE_LOG(LogTemp, Log, TEXT("[NPCForge:HandleDecision]: %s"), *Response);
-
-
+	
 	FString TalkToLine;
-	if (Response.Split(TEXT("\nTalkTo: "), nullptr, &TalkToLine))
-	{
-		const FString EntityName = TalkToLine.TrimStartAndEnd();
-		AActor* TargetActor = FindNPCByName(EntityName);
+	FString MessageLine;
 
-		if (TargetActor)
+	if (Response.Split(TEXT("TalkTo: "), nullptr, &TalkToLine))
+	{
+		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle TalkTo Logic"));
+
+		// Séparer la partie contenant "Message: "
+		if (TalkToLine.Split(TEXT("\nMessage: "), &TalkToLine, &MessageLine))
 		{
-			if (MoveToNPC(TargetActor))
+			// Nettoyer les espaces
+			FString EntityName = TalkToLine.TrimStartAndEnd();
+			FString Message = MessageLine.TrimStartAndEnd();
+        
+			AActor* TargetActor = FindNPCByName(EntityName);
+
+			if (TargetActor)
 			{
-				// Add something to wait until npc has arrived at destination
-				TalkToNPC(TargetActor);
+				if (MoveToNPC(TargetActor))
+				{
+					// Ajouter une attente jusqu'à ce que le NPC arrive à destination
+					TalkToNPC(TargetActor, Message);
+				}
 			}
-		} else
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find entity"));
+			}
+		}
+		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find entity"));
+			UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::HandleWebSocketMessage]: Could not find 'Message:' part"));
 		}
 	} else
 	{
