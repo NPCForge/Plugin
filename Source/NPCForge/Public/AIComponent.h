@@ -29,7 +29,7 @@ public:
 	
 	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	// display chat
+	// Display Chat
 	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnSendMessage OnSendMessage;
 
@@ -49,11 +49,14 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content);
 
-	UFUNCTION(BlueprintCallable)
-	TArray<FMessage> GetReceivedMessages() const;
+	// UFUNCTION(BlueprintCallable)
+	// TArray<FMessage> GetReceivedMessages() const;
 
 	UFUNCTION()
 	void HandleMessage(FMessage Message);
+
+	UFUNCTION(BlueprintCallable, Category="AI")
+	void DelayResponse(FMessage Message);
 
 
 	// Environment Discovering
@@ -72,7 +75,7 @@ public:
 	AActor* FindNPCByName(const FString& NpcName);
 
 	bool MoveToNPC(AActor *NPC);
-	void TalkToNPC(AActor *NPC);
+	void TalkToNPC(AActor *NPC, FString Message);
 
 	void AddAIController();
 
@@ -85,6 +88,8 @@ private:
 	void SaveEntityState() const;
 	void LoadEntityState();
 
+	FTimerHandle ResponseTimerHandle;
+	
 	// Attributes
 	UWebSocketHandler* WebSocketHandler;
 	bool bIsRegistered = false;

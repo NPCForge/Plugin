@@ -9,13 +9,25 @@ void UAIComponent::SendMessageToNPC(const FString& ReceiverChecksum, const FStri
 	}
 }
 
-TArray<FMessage> UAIComponent::GetReceivedMessages() const
+void UAIComponent::DelayResponse(FMessage Message)
 {
-	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
+	int MessageLength = Message.Content.Len();
+	float DelayTime = FMath::Clamp(MessageLength * 0.1f, 1.0f, 5.0f);
+
+	if (GetWorld())
 	{
-		return MessageManager->GetMessagesForNPC(EntityChecksum);
+		FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+
+		TimerManager.SetTimer(ResponseTimerHandle, [this, Message]()
+		{
+			TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+			JsonBody->SetStringField("sender", Message.SenderChecksum);
+			JsonBody->SetStringField("message", Message.Content);
+			WebSocketHandler->SendMessage("NewMessage", JsonBody);
+
+			bIsBusy = false; 
+		}, DelayTime, false);
 	}
-	return TArray<FMessage>();
 }
 
 void UAIComponent::HandleMessage(FMessage Message)
@@ -23,9 +35,7 @@ void UAIComponent::HandleMessage(FMessage Message)
 	if (Message.ReceiverChecksum == EntityChecksum)
 	{
 		UE_LOG(LogTemp, Display, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
-		TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-		JsonBody->SetStringField("interlocutor", Message.SenderChecksum);
-		JsonBody->SetStringField("message", Message.Content);
-		WebSocketHandler->SendMessage("TalkTo", JsonBody);
+		
+		DelayResponse(Message);
 	}
 }

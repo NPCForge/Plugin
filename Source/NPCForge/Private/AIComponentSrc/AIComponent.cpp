@@ -12,6 +12,11 @@ void UAIComponent::BeginPlay()
 
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::BeginPlay]: %s joined the game!"), *UniqueName);
 
+	if (UniqueName == "Charles")
+	{
+		bIsBusy = true;
+	}
+
 	if (!WebSocketHandler)
 	{
 		WebSocketHandler = NewObject<UWebSocketHandler>(this);
@@ -57,10 +62,8 @@ void UAIComponent::AddAIController()
 		return;
 	}
 
-	// Vérifier si l'owner possède déjà un AIController
 	if (!OwnerPawn->GetController())
 	{
-		// Spawner et posséder un AIController
 		AAIController* NewAIController = GetWorld()->SpawnActor<AAIController>(AAIController::StaticClass());
 		if (NewAIController)
 		{
@@ -94,13 +97,14 @@ void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	// Placeholder for functionality that runs each tick.
 	if (GetOwner())
 	{
-		if (bIsConnected && !bIsBusy && EntityChecksum == "b6767fbc10c2d571e190f82315706017")
+		if (bIsConnected && !bIsBusy)
 		{
+			bIsBusy = true;
+			
 			const FString EnvironmentPrompt = ScanEnvironment();
 			
 			TakeDecision(EnvironmentPrompt);
 
-			bIsBusy = true;
 		}
 	}
 }
