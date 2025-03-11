@@ -6,15 +6,15 @@
 void UWebSocketHandler::Initialize()
 {
 	Socket->OnConnected().AddLambda([]() -> void {
-		UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: Connected"));
+		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::Initialize]: Connected"));
 	});
     
 	Socket->OnConnectionError().AddLambda([](const FString & Error) -> void {
-		UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: Connection error: %s"), *Error);
+		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::Initialize]: Connection error: %s"), *Error);
 	});
     
 	Socket->OnClosed().AddLambda([](int32 StatusCode, const FString& Reason, bool bWasClean) -> void {
-		UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: Connection closed: %s"), *Reason);
+		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::Initialize]: Connection closed: %s"), *Reason);
 	});
     
 	Socket->OnMessage().AddLambda([this](const FString& Message) -> void {
@@ -49,15 +49,15 @@ void UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObjec
 	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
 	if (FJsonSerializer::Serialize(JsonBody.ToSharedRef(), Writer)) {
 		Socket->Send(OutputString);
-		UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: JSON message sent: %s"), *OutputString);
+		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: JSON message sent: %s"), *OutputString);
 	} else {
-		UE_LOG(LogTemp, Error, TEXT("[NPCForge:WebSocketHandler]: Failed to serialize JSON"));
+		UE_LOG(LogTemp, Error, TEXT("[UWebSocketHandler::SendMessage]: Failed to serialize JSON"));
 	}
 }
 
 void UWebSocketHandler::SetToken(const FString& NewToken)
 {
-	UE_LOG(LogTemp, Display, TEXT("[NPCForge:WebSocketHandler]: Setting token: %s"), *NewToken);
+	UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SetToken]: Setting token: %s"), *NewToken);
 	this->Token = NewToken;
 }
 

@@ -44,7 +44,7 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 	{
 		if (JsonObject->GetStringField(TEXT("status")) == TEXT("error"))
 		{
-			UE_LOG(LogTemp, Error, TEXT("[NPCForge:WebsocketCommunication]: Error received from API: %s"), *JsonObject->GetStringField(TEXT("message")));
+			UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleWebSocketMessage]: Error received from API: %s"), *JsonObject->GetStringField(TEXT("message")));
 			return;
 		}
 		for (const auto& Pair : JsonObject->Values)
@@ -59,19 +59,19 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 				{
 					if (Value == "Register")
 					{
-						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: Handle Register Logic"));
+						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Register Logic"));
 						WebSocketHandler->SetToken(JsonObject->GetStringField(TEXT("token")));
 						bIsRegistered = true;
 						bIsConnected = true;
 					}
 					else if (Value == "Connection")
 					{
-						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: Handle Connection Logic"));
+						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Connection Logic"));
 						WebSocketHandler->SetToken(JsonObject->GetStringField(TEXT("token")));
 						bIsConnected = true;
 					} else if (Value == "MakeDecision")
 					{
-						UE_LOG(LogTemp, Log, TEXT("[NPCForge:WebSocketCommunication]: Handle MakeDecision Logic"));
+						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle MakeDecision Logic"));
 						HandleDecision(*JsonObject->GetStringField(TEXT("message")));
 					}
 				}
