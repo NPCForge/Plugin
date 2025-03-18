@@ -1,4 +1,5 @@
 ﻿#include "AIComponent.h"
+#include "WorldPartition/ContentBundle/ContentBundleLog.h"
 
 AActor* UAIComponent::FindNPCByName(const FString& NpcName)
 {
@@ -34,6 +35,15 @@ AActor* UAIComponent::FindNPCByName(const FString& NpcName)
 	return nullptr;
 }
 
+void UAIComponent::ParseNames(const FString& InputString, TArray<FString>& OutNames)
+{
+	FString TrimmedString = InputString;
+	TrimmedString.RemoveFromStart("[");
+	TrimmedString.RemoveFromEnd("]");
+
+	TrimmedString.ParseIntoArray(OutNames, TEXT(", "), true);
+}
+
 bool UAIComponent::MoveToNPC(AActor* NPC)
 {
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
@@ -55,13 +65,13 @@ bool UAIComponent::MoveToNPC(AActor* NPC)
 	return true;
 }
 
-void UAIComponent::TalkToNPC(AActor* NPC, FString Message)
+void UAIComponent::TalkToNPC(AActor* NPC, FString Message,TArray<FString>& ReceiversNames)
 {
 	UAIComponent* AIComp = NPC->FindComponentByClass<UAIComponent>();
 
 	if (AIComp)
 	{
-		SendMessageToNPC(AIComp->EntityChecksum, Message);
+		SendMessageToNPC(AIComp->EntityChecksum, Message, ReceiversNames);
 	}
 }
 
@@ -76,26 +86,29 @@ void UAIComponent::HandleDecision(const FString& Response)
 	{
 		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleDecision]: Handle TalkTo Logic"));
 
-		// Séparer la partie contenant "Message: "
 		if (TalkToLine.Split(TEXT("\nMessage: "), &TalkToLine, &MessageLine))
 		{
-			// Nettoyer les espaces
-			FString EntityName = TalkToLine.TrimStartAndEnd();
+			FString EntityNames = TalkToLine.TrimStartAndEnd();
 			FString Message = MessageLine.TrimStartAndEnd();
-        
-			AActor* TargetActor = FindNPCByName(EntityName);
 
-			if (TargetActor)
+			TArray<FString> NamesArray;
+			ParseNames(EntityNames, NamesArray);
+
+			for (const FString& EntityName : NamesArray)
 			{
-				if (MoveToNPC(TargetActor))
+				AActor* TargetActor = FindNPCByName(EntityName);
+				
+				if (TargetActor)
 				{
-					// Ajouter une attente jusqu'à ce que le NPC arrive à destination
-					TalkToNPC(TargetActor, Message);
+					// if (MoveToNPC(TargetActor))
+					// {
+					TalkToNPC(TargetActor, Message, NamesArray);
+					// }
 				}
-			}
-			else
-			{
-				UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: %s"), TEXT("Unable to find entity"));
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: %s"), TEXT("Unable to find entity"));
+				}
 			}
 		}
 		else

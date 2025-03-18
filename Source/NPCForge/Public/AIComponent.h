@@ -47,8 +47,8 @@ public:
 	
 	// AI Message Handling
 	UFUNCTION(BlueprintCallable)
-	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content);
-
+	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content, TArray<FString>& ReceiversNames);
+	
 	// UFUNCTION(BlueprintCallable)
 	// TArray<FMessage> GetReceivedMessages() const;
 
@@ -74,8 +74,10 @@ public:
 
 	AActor* FindNPCByName(const FString& NpcName);
 
+	void ParseNames(const FString& InputString, TArray<FString>& OutNames);
+
 	bool MoveToNPC(AActor *NPC);
-	void TalkToNPC(AActor *NPC, FString Message);
+	void TalkToNPC(AActor *NPC, FString Message, TArray<FString>& ReceiversNames);
 
 	void AddAIController();
 

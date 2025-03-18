@@ -104,7 +104,6 @@ void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 			const FString EnvironmentPrompt = ScanEnvironment();
 			
 			TakeDecision(EnvironmentPrompt);
-
 		}
 	}
 }

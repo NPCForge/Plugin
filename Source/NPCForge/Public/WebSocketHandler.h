@@ -26,6 +26,8 @@ public:
 
 	void SetToken(const FString& Token);
 
+	TSet<FString> MessagesSent;
+
 	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
 	FOnWebSocketMessageReceived OnMessageReceived;
 
