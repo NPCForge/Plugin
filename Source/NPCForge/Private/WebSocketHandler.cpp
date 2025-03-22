@@ -3,8 +3,10 @@
 
 #include "WebSocketHandler.h"
 
-void UWebSocketHandler::Initialize()
+void UWebSocketHandler::Initialize(const bool IsEntity)
 {
+	bIsEntity = IsEntity;
+	
 	Socket->OnConnected().AddLambda([]() -> void {
 		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::Initialize]: Connected"));
 	});
@@ -26,15 +28,47 @@ void UWebSocketHandler::Initialize()
     
 	Socket->OnMessageSent().AddLambda([](const FString& MessageString) -> void {
 	});
-	
+
 	Socket->Connect();
 }
 
 void UWebSocketHandler::Close()
 {
-	DisconnectAPI();
+	if (bIsEntity) { DisconnectAPI(); }
 	Socket->Close();
 }
+
+void UWebSocketHandler::ResetGame()
+{
+	if (ResettingGame.IsBound())
+	{
+		ResettingGame.Broadcast();
+		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: Broadcast sent"));
+	} else
+	{
+		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: Cannot send broadcast"));
+	}
+
+
+	GetWorld()->GetTimerManager().SetTimer(ResetGameTimerHandle, this, &UWebSocketHandler::SendResetMessage, 5.0f, false);
+}
+
+void UWebSocketHandler::SendResetMessage()
+{
+	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+	JsonBody->SetStringField("action", "ResetGame");
+
+	FString OutputString;
+
+	if (const TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+		FJsonSerializer::Serialize(JsonBody.ToSharedRef(), Writer)) {
+		Socket->Send(OutputString);
+		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: JSON message sent: %s"), *OutputString);
+		} else {
+			UE_LOG(LogTemp, Error, TEXT("[UWebSocketHandler::SendMessage]: Failed to serialize JSON"));
+		}
+}
+
 
 void UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody)
 {
@@ -46,8 +80,8 @@ void UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObjec
 	JsonBody->SetStringField("token", Token);
 
 	FString OutputString;
-	TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
-	if (FJsonSerializer::Serialize(JsonBody.ToSharedRef(), Writer)) {
+	if (const TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
+		FJsonSerializer::Serialize(JsonBody.ToSharedRef(), Writer)) {
 		Socket->Send(OutputString);
 		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: JSON message sent: %s"), *OutputString);
 	} else {

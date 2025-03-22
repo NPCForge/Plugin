@@ -11,19 +11,21 @@ void UAIComponent::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::BeginPlay]: %s joined the game!"), *UniqueName);
-
+	
 	if (UniqueName == "Charles")
 	{
 		bIsBusy = true;
 	}
+	
 
 	if (!WebSocketHandler)
 	{
 		WebSocketHandler = NewObject<UWebSocketHandler>(this);
 		if (WebSocketHandler)
 		{
-			WebSocketHandler->Initialize();
+			WebSocketHandler->Initialize(true);
 			WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
+			WebSocketHandler->ResettingGame.AddDynamic(this, &UAIComponent::HandleResettingGame);
 		}
 	}
 	
@@ -43,6 +45,12 @@ void UAIComponent::BeginPlay()
 	} else {
 		WebSocketHandler->ConnectAPI(EntityChecksum);
 	}
+}
+
+void UAIComponent::HandleResettingGame()
+{
+	bIsBusy = true;
+	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::AddAIController}: AIs are waiting!"));
 }
 
 void UAIComponent::TriggerSendMessageEvent(FString Message)

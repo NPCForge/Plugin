@@ -69,6 +69,9 @@ public:
 	UFUNCTION()
 	void HandleWebSocketMessage(const FString& Message);
 
+	UFUNCTION()
+	void HandleResettingGame();
+
 	void TakeDecision(const FString& Prompt) const;
 	void HandleDecision(const FString& Response);
 
@@ -78,7 +81,6 @@ public:
 	void TalkToNPC(const AActor *NPC, const FString &Message);
 
 	void AddAIController();
-
 protected:
 	// Base Class
 	virtual void BeginPlay() override;

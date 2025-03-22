@@ -73,6 +73,13 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 					{
 						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle MakeDecision Logic"));
 						HandleDecision(*JsonObject->GetStringField(TEXT("message")));
+					} else if (Value == "ResetGame")
+					{
+						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle ResetGame Logic"));
+						if (UniqueName == "Pascal")
+						{
+							bIsBusy = false;
+						}
 					}
 				}
 			}
