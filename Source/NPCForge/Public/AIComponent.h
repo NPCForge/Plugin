@@ -91,6 +91,7 @@ private:
 	FTimerHandle ResponseTimerHandle;
 	
 	// Attributes
+	UPROPERTY()
 	UWebSocketHandler* WebSocketHandler;
 	bool bIsRegistered = false;
 	bool bIsConnected = false;

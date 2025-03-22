@@ -95,7 +95,7 @@ void UAIComponent::HandleDecision(const FString& Response)
 			}
 			else
 			{
-				UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: %s"), TEXT("Unable to find entity"));
+				UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: %s%s"), TEXT("Unable to find entity with name = "), *EntityName);
 			}
 		}
 		else
