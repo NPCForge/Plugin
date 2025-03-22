@@ -72,10 +72,10 @@ public:
 	void TakeDecision(const FString& Prompt) const;
 	void HandleDecision(const FString& Response);
 
-	AActor* FindNPCByName(const FString& NpcName);
+	AActor* FindNPCByName(const FString& NpcName) const;
 
-	bool MoveToNPC(AActor *NPC);
-	void TalkToNPC(AActor *NPC, FString Message);
+	bool MoveToNPC(AActor *NPC) const;
+	void TalkToNPC(const AActor *NPC, const FString &Message);
 
 	void AddAIController();
 
