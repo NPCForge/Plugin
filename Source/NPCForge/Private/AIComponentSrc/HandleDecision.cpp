@@ -81,10 +81,10 @@ void UAIComponent::HandleDecision(const FString& Response)
 			
 			if (AActor* TargetActor = FindNPCByName(EntityName))
 			{
-				if (MoveToNPC(TargetActor))
-				{
-					TalkToNPC(TargetActor, Message);
-				}
+				TalkToNPC(TargetActor, Message);
+				// if (MoveToNPC(TargetActor))
+				// {
+				// }
 			}
 			else
 			{
