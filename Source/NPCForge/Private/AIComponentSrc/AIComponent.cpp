@@ -12,7 +12,7 @@ void UAIComponent::BeginPlay()
 
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::BeginPlay]: %s joined the game!"), *UniqueName);
 
-	if (UniqueName == "Pascal")
+	if (UniqueName == "Virginie")
 	{
 		bIsBusy = true;
 	}
