@@ -40,17 +40,7 @@ void UWebSocketHandler::Close()
 
 void UWebSocketHandler::ResetGame()
 {
-	if (ResettingGame.IsBound())
-	{
-		ResettingGame.Broadcast();
-		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: Broadcast sent"));
-	} else
-	{
-		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: Cannot send broadcast"));
-	}
-
-
-	GetWorld()->GetTimerManager().SetTimer(ResetGameTimerHandle, this, &UWebSocketHandler::SendResetMessage, 5.0f, false);
+	SendResetMessage();
 }
 
 void UWebSocketHandler::SendResetMessage()
@@ -64,9 +54,9 @@ void UWebSocketHandler::SendResetMessage()
 		FJsonSerializer::Serialize(JsonBody.ToSharedRef(), Writer)) {
 		Socket->Send(OutputString);
 		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: JSON message sent: %s"), *OutputString);
-		} else {
-			UE_LOG(LogTemp, Error, TEXT("[UWebSocketHandler::SendMessage]: Failed to serialize JSON"));
-		}
+	} else {
+		UE_LOG(LogTemp, Error, TEXT("[UWebSocketHandler::SendMessage]: Failed to serialize JSON"));
+	}
 }
 
 

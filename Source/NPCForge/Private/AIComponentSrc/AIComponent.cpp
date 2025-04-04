@@ -25,7 +25,6 @@ void UAIComponent::BeginPlay()
 		{
 			WebSocketHandler->Initialize(true);
 			WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
-			WebSocketHandler->ResettingGame.AddDynamic(this, &UAIComponent::HandleResettingGame);
 		}
 	}
 	
@@ -45,12 +44,6 @@ void UAIComponent::BeginPlay()
 	} else {
 		WebSocketHandler->ConnectAPI(EntityChecksum);
 	}
-}
-
-void UAIComponent::HandleResettingGame()
-{
-	bIsBusy = true;
-	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::AddAIController}: AIs are waiting!"));
 }
 
 void UAIComponent::TriggerSendMessageEvent(FString Message)

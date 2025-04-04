@@ -10,7 +10,6 @@
 #include "WebSocketHandler.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWebSocketMessageReceived, const FString&, Message);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnResettingGame);
 
 UCLASS(Blueprintable)
 class NPCFORGE_API UWebSocketHandler : public UObject
@@ -38,9 +37,6 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
 	FOnWebSocketMessageReceived OnMessageReceived;
-
-	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
-	FOnResettingGame ResettingGame;
 
 	FTimerHandle ResetGameTimerHandle;
 

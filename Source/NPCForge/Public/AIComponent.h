@@ -69,9 +69,6 @@ public:
 	UFUNCTION()
 	void HandleWebSocketMessage(const FString& Message);
 
-	UFUNCTION()
-	void HandleResettingGame();
-
 	void TakeDecision(const FString& Prompt) const;
 	void HandleDecision(const FString& Response);
 
