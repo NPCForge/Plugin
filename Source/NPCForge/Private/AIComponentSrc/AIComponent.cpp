@@ -11,12 +11,11 @@ void UAIComponent::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::BeginPlay]: %s joined the game!"), *UniqueName);
-	
-	if (UniqueName == "Charles")
+
+	if (UniqueName == "Virginie")
 	{
 		bIsBusy = true;
 	}
-	
 
 	if (!WebSocketHandler)
 	{
