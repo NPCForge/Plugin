@@ -25,7 +25,7 @@ void UAIComponent::DelayResponse(FMessage Message)
 			JsonBody->SetStringField("message", Message.Content);
 			WebSocketHandler->SendMessage("NewMessage", JsonBody);
 
-			bIsBusy = false; 
+			bIsBusy = false;
 		}, DelayTime, false);
 	}
 }

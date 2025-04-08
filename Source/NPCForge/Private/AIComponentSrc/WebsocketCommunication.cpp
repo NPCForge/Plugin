@@ -45,6 +45,7 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 		if (JsonObject->GetStringField(TEXT("status")) == TEXT("error"))
 		{
 			UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleWebSocketMessage]: Error received from API: %s"), *JsonObject->GetStringField(TEXT("message")));
+			bIsBusy = false;
 			return;
 		}
 		for (const auto& Pair : JsonObject->Values)
@@ -73,13 +74,6 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 					{
 						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle MakeDecision Logic"));
 						HandleDecision(*JsonObject->GetStringField(TEXT("message")));
-					} else if (Value == "ResetGame")
-					{
-						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle ResetGame Logic"));
-						if (UniqueName == "Pascal")
-						{
-							bIsBusy = false;
-						}
 					}
 				}
 			}
