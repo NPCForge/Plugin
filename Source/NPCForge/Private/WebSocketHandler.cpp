@@ -18,7 +18,7 @@ void UWebSocketHandler::Initialize()
 	});
     
 	Socket->OnMessage().AddLambda([this](const FString& Message) -> void {
-		OnMessageReceived.Broadcast(Message);
+		HandleReceivedMessage(Message);
 	});
     
 	Socket->OnRawMessage().AddLambda([](const void* Data, SIZE_T Size, SIZE_T BytesRemaining) -> void {
@@ -28,6 +28,52 @@ void UWebSocketHandler::Initialize()
 	});
 
 	Socket->Connect();
+}
+
+void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
+{
+	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Message);
+
+	TSharedPtr<FJsonObject> JsonObject;
+	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
+	{
+		if (JsonObject->GetStringField(TEXT("status")) == TEXT("error"))
+		{
+			OnMessageReceived.Broadcast(Message);
+			return;
+		}
+		for (const auto& Pair : JsonObject->Values)
+		{
+			FString Key = Pair.Key;
+
+			if (Pair.Value->Type == EJson::String)
+			{
+				FString Value = Pair.Value->AsString();
+				
+				if (Key == "route")
+				{
+					if (Value == "Register")
+					{
+						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Register Logic"));
+						SetToken(JsonObject->GetStringField(TEXT("token")));
+						bIsRegistered = true;
+					}
+					else if (Value == "Connection")
+					{
+						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Connection Logic"));
+						SetToken(JsonObject->GetStringField(TEXT("token")));
+					} else
+					{
+						OnMessageReceived.Broadcast(Message);
+					}
+				}
+			}
+		}
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[NPCForge:WebSocketCommunication]: Failed to parse JSON: %s"), *Message);
+	}
 }
 
 void UWebSocketHandler::Close()
@@ -83,6 +129,32 @@ void UWebSocketHandler::SetToken(const FString& NewToken)
 	this->Token = NewToken;
 }
 
+void UWebSocketHandler::SaveInstanceState() const
+{
+	USaveEntityState* SaveGameInstance = Cast<USaveEntityState>(UGameplayStatics::CreateSaveGameObject(USaveEntityState::StaticClass()));
+
+	SaveGameInstance->bIsRegistered = bIsRegistered;
+	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::SaveEntityState]: bIsRegistered value: %s"), bIsRegistered ? TEXT("true") : TEXT("false"));
+
+	if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, "GameInstance", 0))
+	{
+		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::SaveEntityState]: Game saved successfully on slot: GameInstance"));
+	}
+}
+
+void UWebSocketHandler::LoadInstanceState()
+{
+	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::LoadEntityState]: Try loading data for slot = GameInstance"));
+	if (UGameplayStatics::DoesSaveGameExist("GameInstance", 0))
+	{
+		if (const USaveEntityState* LoadedGame = Cast<USaveEntityState>(UGameplayStatics::LoadGameFromSlot("GameInstance", 0)))
+		{
+			bIsRegistered = LoadedGame->bIsRegistered;
+		}
+	}
+}
+
+
 
 // void UWebSocketHandler::ConnectAPI(const FString& Checksum)
 // {
@@ -113,7 +185,6 @@ void UWebSocketHandler::RegisterAPI()
 void UWebSocketHandler::ConnectAPI()
 {
 	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	JsonBody->SetStringField("API_KEY", "VDCAjPZ8jhDmXfsSufW2oZyU8SFZi48dRhA8zyKUjSRU3T1aBZ7E8FFIjdEM2X1d");
 	JsonBody->SetStringField("identifier", "Test");
 	JsonBody->SetStringField("password", "passTest");
 	SendMessage("Connect", JsonBody);

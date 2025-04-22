@@ -10,16 +10,16 @@ UWebSocketHandler* UNPCForgeGameInstance::GetWebSocketHandler()
 		WebSocketHandlerInstance = NewObject<UWebSocketHandler>(this);
 		WebSocketHandlerInstance->AddToRoot();
 		WebSocketHandlerInstance->Initialize();
+		
+		WebSocketHandlerInstance->LoadInstanceState();
 
-		LoadInstanceState();
-
-		if (!bIsRegistered)
+		if (!WebSocketHandlerInstance->bIsRegistered)
 		{
 			WebSocketHandlerInstance->RegisterAPI();
 		} else
 		{
 			WebSocketHandlerInstance->ConnectAPI();
-			bIsRegistered = true;
+			WebSocketHandlerInstance->bIsRegistered = true;
 		}
 	}
 	
@@ -28,34 +28,13 @@ UWebSocketHandler* UNPCForgeGameInstance::GetWebSocketHandler()
 
 void UNPCForgeGameInstance::Shutdown()
 {
+	Super::Shutdown();
+	
 	if (WebSocketHandlerInstance)
 	{
+		WebSocketHandlerInstance->SaveInstanceState();
 		WebSocketHandlerInstance->Close();
-	}
-	SaveInstanceState();
-}
-
-void UNPCForgeGameInstance::SaveInstanceState() const
-{
-	USaveEntityState* SaveGameInstance = Cast<USaveEntityState>(UGameplayStatics::CreateSaveGameObject(USaveEntityState::StaticClass()));
-
-	SaveGameInstance->bIsRegistered = bIsRegistered;
-	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::SaveEntityState]: bIsRegistered value: %s"), bIsRegistered ? TEXT("true") : TEXT("false"));
-
-	if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, "GameInstance", 0))
-	{
-		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::SaveEntityState]: Game saved successfully on slot: GameInstance"));
-	}
-}
-
-void UNPCForgeGameInstance::LoadInstanceState()
-{
-	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::LoadEntityState]: Try loading data for slot = GameInstance"));
-	if (UGameplayStatics::DoesSaveGameExist("GameInstance", 0))
-	{
-		if (const USaveEntityState* LoadedGame = Cast<USaveEntityState>(UGameplayStatics::LoadGameFromSlot("GameInstance", 0)))
-		{
-			bIsRegistered = LoadedGame->bIsRegistered;
-		}
+		WebSocketHandlerInstance->RemoveFromRoot();
+		WebSocketHandlerInstance = nullptr;
 	}
 }

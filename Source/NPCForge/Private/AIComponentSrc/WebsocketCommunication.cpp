@@ -58,19 +58,7 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 				
 				if (Key == "route")
 				{
-					if (Value == "Register")
-					{
-						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Register Logic"));
-						WebSocketHandler->SetToken(JsonObject->GetStringField(TEXT("token")));
-						bIsRegistered = true;
-						bIsConnected = true;
-					}
-					else if (Value == "Connection")
-					{
-						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Connection Logic"));
-						WebSocketHandler->SetToken(JsonObject->GetStringField(TEXT("token")));
-						bIsConnected = true;
-					} else if (Value == "MakeDecision")
+					if (Value == "MakeDecision")
 					{
 						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle MakeDecision Logic"));
 						HandleDecision(*JsonObject->GetStringField(TEXT("message")));

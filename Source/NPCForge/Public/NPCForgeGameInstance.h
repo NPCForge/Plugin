@@ -5,8 +5,6 @@
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
 #include "WebSocketHandler.h"
-#include "SaveEntityState.h"
-#include "Kismet/GameplayStatics.h"
 #include "NPCForgeGameInstance.generated.h"
 
 /**
@@ -22,12 +20,7 @@ public:
 
 	virtual void Shutdown() override;
 
-	void SaveInstanceState() const;
-	void LoadInstanceState();
-
 private:
 	UPROPERTY()
 	UWebSocketHandler* WebSocketHandlerInstance = nullptr;
-
-	bool bIsRegistered = false;
 };

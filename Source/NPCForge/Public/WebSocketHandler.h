@@ -6,6 +6,8 @@
 
 #include "WebSocketsModule.h"
 #include "IWebSocket.h"
+#include "SaveEntityState.h"
+#include "Kismet/GameplayStatics.h"
 
 #include "WebSocketHandler.generated.h"
 
@@ -37,6 +39,11 @@ public:
 
 	void SetToken(const FString& Token);
 
+	void SaveInstanceState() const;
+	void LoadInstanceState();
+
+	void HandleReceivedMessage(const FString &Message);
+
 	TSet<FString> MessagesSent;
 
 	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
@@ -44,10 +51,12 @@ public:
 
 	FTimerHandle ResetGameTimerHandle;
 
+	bool bIsRegistered = false;
 private:
 	const FString ServerURL = TEXT("ws://127.0.0.1:3000/ws");
 	const FString ServerProtocol = TEXT("ws");
 	FString Token = TEXT("");
+
 
 	TSharedPtr<IWebSocket> Socket = FWebSocketsModule::Get().CreateWebSocket(ServerURL, ServerProtocol);
 };

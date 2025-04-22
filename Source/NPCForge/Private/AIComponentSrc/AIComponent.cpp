@@ -17,14 +17,24 @@ void UAIComponent::BeginPlay()
 		bIsBusy = true;
 	}
 	
-	if (auto* MyGI = Cast<UNPCForgeGameInstance>(GetOwner()->GetGameInstance()))
+	UWorld* World = GetOwner()->GetWorld();
+	if (World)
 	{
-		if (!WebSocketHandler)
+		if (auto* MyGI = Cast<UNPCForgeGameInstance>(World->GetGameInstance()))
 		{
-			WebSocketHandler = MyGI->GetWebSocketHandler();
-			WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
+			if (!WebSocketHandler)
+			{
+				WebSocketHandler = MyGI->GetWebSocketHandler();
+				WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
+			}
+		} else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Owner is: %s"), *GetNameSafe(GetOwner()));
+			UE_LOG(LogTemp, Warning, TEXT("Not Found Game Instance"));
 		}
 	}
+
+	
 	
 	// Generate checksum from name + prompt
 	const FString CombinedString = FString::Printf(TEXT("%s%s"), *UniqueName, *PersonalityPrompt);
