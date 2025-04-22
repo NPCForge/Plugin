@@ -16,13 +16,12 @@ void UAIComponent::BeginPlay()
 	{
 		bIsBusy = true;
 	}
-
-	if (!WebSocketHandler)
+	
+	if (auto* MyGI = Cast<UNPCForgeGameInstance>(GetOwner()->GetGameInstance()))
 	{
-		WebSocketHandler = NewObject<UWebSocketHandler>(this);
-		if (WebSocketHandler)
+		if (!WebSocketHandler)
 		{
-			WebSocketHandler->Initialize();
+			WebSocketHandler = MyGI->GetWebSocketHandler();
 			WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
 		}
 	}
@@ -38,11 +37,11 @@ void UAIComponent::BeginPlay()
 		MessageManager->NewMessageReceivedEvent.AddDynamic(this, &UAIComponent::HandleMessage);
 	}
 
-	if (!bIsRegistered) {
-		WebSocketHandler->RegisterAPI(EntityChecksum, UniqueName, PersonalityPrompt);
-	} else {
-		WebSocketHandler->ConnectAPI(EntityChecksum);
-	}
+	// if (!bIsRegistered) {
+	// 	WebSocketHandler->RegisterAPI(EntityChecksum, UniqueName, PersonalityPrompt);
+	// } else {
+	// 	WebSocketHandler->ConnectAPI(EntityChecksum);
+	// }
 }
 
 void UAIComponent::TriggerSendMessageEvent(FString Message)
@@ -84,7 +83,6 @@ void UAIComponent::AddAIController()
 
 void UAIComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	WebSocketHandler->Close();
 	SaveEntityState();
 	
 	Super::EndPlay(EndPlayReason);

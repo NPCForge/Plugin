@@ -11,6 +11,7 @@
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include "NPCForgeGameInstance.h"
 
 #include "AIComponent.generated.h"
 

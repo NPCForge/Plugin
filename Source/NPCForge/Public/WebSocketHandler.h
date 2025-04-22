@@ -18,15 +18,17 @@ class NPCFORGE_API UWebSocketHandler : public UObject
 
 public:
 	UFUNCTION(BlueprintCallable, Category = "WebSocket")
-	void Initialize(bool IsEntity);
+	void Initialize();
 
 	UFUNCTION(BlueprintCallable, Category = "WebSocket")
 	void Close();
 	
 	void SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody);
-	void ConnectAPI(const FString& Checksum);
-	void RegisterAPI(const FString& Checksum, const FString& Name, const FString& Prompt);
-	void DisconnectAPI();
+	// void ConnectAPI(const FString& Checksum);
+	// void RegisterAPI(const FString& Checksum, const FString& Name, const FString& Prompt);
+	void ConnectAPI();
+	void RegisterAPI();
+	// void DisconnectAPI();
 
 	UFUNCTION(BlueprintCallable, Category = "WebSocket")
 	void ResetGame();
@@ -46,7 +48,6 @@ private:
 	const FString ServerURL = TEXT("ws://127.0.0.1:3000/ws");
 	const FString ServerProtocol = TEXT("ws");
 	FString Token = TEXT("");
-	bool bIsEntity = true;
 
 	TSharedPtr<IWebSocket> Socket = FWebSocketsModule::Get().CreateWebSocket(ServerURL, ServerProtocol);
 };

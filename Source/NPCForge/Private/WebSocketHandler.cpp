@@ -3,10 +3,8 @@
 
 #include "WebSocketHandler.h"
 
-void UWebSocketHandler::Initialize(const bool IsEntity)
+void UWebSocketHandler::Initialize()
 {
-	bIsEntity = IsEntity;
-	
 	Socket->OnConnected().AddLambda([]() -> void {
 		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::Initialize]: Connected"));
 	});
@@ -34,7 +32,7 @@ void UWebSocketHandler::Initialize(const bool IsEntity)
 
 void UWebSocketHandler::Close()
 {
-	if (bIsEntity) { DisconnectAPI(); }
+	// DisconnectAPI();
 	Socket->Close();
 }
 
@@ -86,27 +84,45 @@ void UWebSocketHandler::SetToken(const FString& NewToken)
 }
 
 
-void UWebSocketHandler::ConnectAPI(const FString& Checksum)
-{
-	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	JsonBody->SetStringField("checksum", Checksum);
-	SendMessage("Connection", JsonBody);
-}
+// void UWebSocketHandler::ConnectAPI(const FString& Checksum)
+// {
+// 	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+// 	JsonBody->SetStringField("checksum", Checksum);
+// 	SendMessage("Connection", JsonBody);
+// }
 
-void UWebSocketHandler::RegisterAPI(const FString& Checksum, const FString& Name, const FString& Prompt)
+// void UWebSocketHandler::RegisterAPI(const FString& Checksum, const FString& Name, const FString& Prompt)
+// {
+// 	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+// 	JsonBody->SetStringField("checksum", Checksum);
+// 	JsonBody->SetStringField("API_KEY", "VDCAjPZ8jhDmXfsSufW2oZyU8SFZi48dRhA8zyKUjSRU3T1aBZ7E8FFIjdEM2X1d");
+// 	JsonBody->SetStringField("name", Name);
+// 	JsonBody->SetStringField("prompt", Prompt);
+// 	SendMessage("Register", JsonBody);
+// }
+
+void UWebSocketHandler::RegisterAPI()
 {
-	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	JsonBody->SetStringField("checksum", Checksum);
+	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
 	JsonBody->SetStringField("API_KEY", "VDCAjPZ8jhDmXfsSufW2oZyU8SFZi48dRhA8zyKUjSRU3T1aBZ7E8FFIjdEM2X1d");
-	JsonBody->SetStringField("name", Name);
-	JsonBody->SetStringField("prompt", Prompt);
+	JsonBody->SetStringField("identifier", "Test");
+	JsonBody->SetStringField("password", "passTest");
 	SendMessage("Register", JsonBody);
 }
 
-void UWebSocketHandler::DisconnectAPI()
+void UWebSocketHandler::ConnectAPI()
 {
-	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	SendMessage("Disconnect", JsonBody);
-	SetToken("");
+	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+	JsonBody->SetStringField("API_KEY", "VDCAjPZ8jhDmXfsSufW2oZyU8SFZi48dRhA8zyKUjSRU3T1aBZ7E8FFIjdEM2X1d");
+	JsonBody->SetStringField("identifier", "Test");
+	JsonBody->SetStringField("password", "passTest");
+	SendMessage("Connect", JsonBody);
 }
 
+
+// void UWebSocketHandler::DisconnectAPI()
+// {
+// 	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+// 	SendMessage("Disconnect", JsonBody);
+// 	SetToken("");
+// }
