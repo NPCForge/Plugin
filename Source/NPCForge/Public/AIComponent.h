@@ -47,8 +47,8 @@ public:
 	
 	// AI Message Handling
 	UFUNCTION(BlueprintCallable)
-	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content);
-
+	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content, TArray<FString>& ReceiversNames);
+	
 	// UFUNCTION(BlueprintCallable)
 	// TArray<FMessage> GetReceivedMessages() const;
 
@@ -72,12 +72,15 @@ public:
 	void TakeDecision(const FString& Prompt) const;
 	void HandleDecision(const FString& Response);
 
-	AActor* FindNPCByName(const FString& NpcName) const;
+	AActor* FindNPCByName(const FString& NpcName);
 
-	bool MoveToNPC(AActor *NPC) const;
-	void TalkToNPC(const AActor *NPC, const FString &Message);
+	void ParseNames(const FString& InputString, TArray<FString>& OutNames);
+
+	bool MoveToNPC(AActor *NPC);
+	void TalkToNPC(AActor *NPC, FString Message, TArray<FString>& ReceiversNames);
 
 	void AddAIController();
+
 protected:
 	// Base Class
 	virtual void BeginPlay() override;
@@ -90,7 +93,6 @@ private:
 	FTimerHandle ResponseTimerHandle;
 	
 	// Attributes
-	UPROPERTY()
 	UWebSocketHandler* WebSocketHandler;
 	bool bIsRegistered = false;
 	bool bIsConnected = false;

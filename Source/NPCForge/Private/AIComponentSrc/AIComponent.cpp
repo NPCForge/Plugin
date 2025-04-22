@@ -12,7 +12,7 @@ void UAIComponent::BeginPlay()
 
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::BeginPlay]: %s joined the game!"), *UniqueName);
 
-	if (UniqueName == "Virginie")
+	if (UniqueName == "Charles" || UniqueName == "Robert")
 	{
 		bIsBusy = true;
 	}
@@ -22,7 +22,7 @@ void UAIComponent::BeginPlay()
 		WebSocketHandler = NewObject<UWebSocketHandler>(this);
 		if (WebSocketHandler)
 		{
-			WebSocketHandler->Initialize(true);
+			WebSocketHandler->Initialize();
 			WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
 		}
 	}

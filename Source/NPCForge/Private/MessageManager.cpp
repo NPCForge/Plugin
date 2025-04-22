@@ -4,9 +4,9 @@ UMessageManager::UMessageManager()
 {
 }
 
-void UMessageManager::SendMessage(const FString& SenderID, const FString& ReceiverID, const FString& Content)
+void UMessageManager::SendMessage(const FString& SenderID, const FString& ReceiverID, const FString& Content, TArray<FString>& ReceiversNames)
 {
-	FMessage NewMessage(SenderID, ReceiverID, Content);
+	FMessage NewMessage(SenderID, ReceiverID, Content, ReceiversNames);
 	MessageLog.Add(NewMessage);
 
 	UE_LOG(LogTemp, Log, TEXT("[UMessageManager::SendMessage]: Sending message: Sender=%s, Receiver=%s, Content=%s"), *NewMessage.SenderChecksum, *NewMessage.ReceiverChecksum, *NewMessage.Content);
