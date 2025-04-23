@@ -16,6 +16,7 @@ class NPCFORGE_API UNPCForgeGameInstance : public UGameInstance
 	GENERATED_BODY()
 
 public:
+	UFUNCTION(BlueprintCallable)
 	UWebSocketHandler* GetWebSocketHandler();
 
 	virtual void Shutdown() override;

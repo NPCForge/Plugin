@@ -29,7 +29,6 @@ void UAIComponent::BeginPlay()
 			}
 		} else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Owner is: %s"), *GetNameSafe(GetOwner()));
 			UE_LOG(LogTemp, Warning, TEXT("Not Found Game Instance"));
 		}
 	}

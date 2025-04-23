@@ -58,7 +58,7 @@ void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
 						SetToken(JsonObject->GetStringField(TEXT("token")));
 						bIsRegistered = true;
 					}
-					else if (Value == "Connection")
+					else if (Value == "Connect")
 					{
 						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Connection Logic"));
 						SetToken(JsonObject->GetStringField(TEXT("token")));
