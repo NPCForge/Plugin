@@ -78,7 +78,7 @@ void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
 
 void UWebSocketHandler::Close()
 {
-	// DisconnectAPI();
+	DisconnectAPI();
 	Socket->Close();
 }
 
@@ -191,9 +191,9 @@ void UWebSocketHandler::ConnectAPI()
 }
 
 
-// void UWebSocketHandler::DisconnectAPI()
-// {
-// 	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-// 	SendMessage("Disconnect", JsonBody);
-// 	SetToken("");
-// }
+void UWebSocketHandler::DisconnectAPI()
+{
+	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+	SendMessage("Disconnect", JsonBody);
+	SetToken("");
+}

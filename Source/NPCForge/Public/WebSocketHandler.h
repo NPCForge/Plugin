@@ -30,7 +30,7 @@ public:
 	// void RegisterAPI(const FString& Checksum, const FString& Name, const FString& Prompt);
 	void ConnectAPI();
 	void RegisterAPI();
-	// void DisconnectAPI();
+	void DisconnectAPI();
 
 	UFUNCTION(BlueprintCallable, Category = "WebSocket")
 	void ResetGame();
