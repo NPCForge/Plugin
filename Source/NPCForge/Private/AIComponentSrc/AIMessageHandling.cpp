@@ -25,7 +25,7 @@ void UAIComponent::DelayResponse(FMessage Message)
 			JsonBody->SetStringField("message", Message.Content);
 			WebSocketHandler->SendMessage("NewMessage", JsonBody);
 
-			bIsBusy = false; 
+			bIsBusy = false;
 		}, DelayTime, false);
 	}
 }
@@ -34,7 +34,7 @@ void UAIComponent::HandleMessage(FMessage Message)
 {
 	if (Message.ReceiverChecksum == EntityChecksum)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
+		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
 		
 		DelayResponse(Message);
 	}

@@ -12,7 +12,7 @@ void UAIComponent::BeginPlay()
 
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::BeginPlay]: %s joined the game!"), *UniqueName);
 
-	if (UniqueName == "Charles")
+	if (UniqueName == "Virginie")
 	{
 		bIsBusy = true;
 	}
@@ -22,7 +22,7 @@ void UAIComponent::BeginPlay()
 		WebSocketHandler = NewObject<UWebSocketHandler>(this);
 		if (WebSocketHandler)
 		{
-			WebSocketHandler->Initialize();
+			WebSocketHandler->Initialize(true);
 			WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
 		}
 	}
@@ -58,7 +58,7 @@ void UAIComponent::AddAIController()
 	APawn* OwnerPawn = Cast<APawn>(GetOwner());
 	if (!OwnerPawn)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("UMyCustomComponent: Owner is not a Pawn!"));
+		UE_LOG(LogTemp, Error, TEXT("[UAIComponent::AddAIController}: Owner is not a Pawn!"));
 		return;
 	}
 
@@ -68,16 +68,16 @@ void UAIComponent::AddAIController()
 		if (NewAIController)
 		{
 			NewAIController->Possess(OwnerPawn);
-			UE_LOG(LogTemp, Warning, TEXT("AIController dynamically added to %s"), *OwnerPawn->GetName());
+			UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::AddAIController]: AIController dynamically added to %s"), *OwnerPawn->GetName());
 		}
 		else
 		{
-			UE_LOG(LogTemp, Error, TEXT("Unable to create AIController"));
+			UE_LOG(LogTemp, Error, TEXT("[UAIComponent::AddAIController]: Unable to create AIController"));
 		}
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%s a déjà un AIController"), *OwnerPawn->GetName());
+		UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::AddAIController]: %s already has an AIController"), *OwnerPawn->GetName());
 	}
 }
 

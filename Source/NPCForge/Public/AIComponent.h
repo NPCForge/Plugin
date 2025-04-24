@@ -72,13 +72,12 @@ public:
 	void TakeDecision(const FString& Prompt) const;
 	void HandleDecision(const FString& Response);
 
-	AActor* FindNPCByName(const FString& NpcName);
+	AActor* FindNPCByName(const FString& NpcName) const;
 
-	bool MoveToNPC(AActor *NPC);
-	void TalkToNPC(AActor *NPC, FString Message);
+	bool MoveToNPC(AActor *NPC) const;
+	void TalkToNPC(const AActor *NPC, const FString &Message);
 
 	void AddAIController();
-
 protected:
 	// Base Class
 	virtual void BeginPlay() override;
@@ -91,6 +90,7 @@ private:
 	FTimerHandle ResponseTimerHandle;
 	
 	// Attributes
+	UPROPERTY()
 	UWebSocketHandler* WebSocketHandler;
 	bool bIsRegistered = false;
 	bool bIsConnected = false;

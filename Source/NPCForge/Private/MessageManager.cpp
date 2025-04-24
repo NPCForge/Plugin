@@ -9,7 +9,7 @@ void UMessageManager::SendMessage(const FString& SenderID, const FString& Receiv
 	FMessage NewMessage(SenderID, ReceiverID, Content);
 	MessageLog.Add(NewMessage);
 
-	UE_LOG(LogTemp, Display, TEXT("[NPCForge:MessageManager]: Sending message: Sender=%s, Receiver=%s, Content=%s"), *NewMessage.SenderChecksum, *NewMessage.ReceiverChecksum, *NewMessage.Content);
+	UE_LOG(LogTemp, Log, TEXT("[UMessageManager::SendMessage]: Sending message: Sender=%s, Receiver=%s, Content=%s"), *NewMessage.SenderChecksum, *NewMessage.ReceiverChecksum, *NewMessage.Content);
 
 	NewMessageReceivedEvent.Broadcast(NewMessage);
 }
@@ -34,6 +34,6 @@ TArray<FMessage> UMessageManager::GetMessagesForNPC(const FString& NPCID) const
 
 void UMessageManager::TriggerCustomEvent()
 {
-	UE_LOG(LogTemp, Log, TEXT("[NPCForge:MessageManager]: TriggerCustomEvent called in UMessageManager"));
+	UE_LOG(LogTemp, Log, TEXT("[UMessageManager::TriggerCustomEvent]: TriggerCustomEvent called in UMessageManager"));
 }
 
