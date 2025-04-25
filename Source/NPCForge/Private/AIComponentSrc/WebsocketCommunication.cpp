@@ -31,6 +31,7 @@ void UAIComponent::TakeDecision(const FString& Prompt) const
 {
 	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
 	JsonBody->SetStringField("message", Prompt);
+	JsonBody->SetStringField("checksum", EntityChecksum);
 	WebSocketHandler->SendMessage("TakeDecision", JsonBody);
 }
 

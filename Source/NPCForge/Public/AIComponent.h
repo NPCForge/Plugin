@@ -70,6 +70,9 @@ public:
 	UFUNCTION()
 	void HandleWebSocketMessage(const FString& Message);
 
+	UFUNCTION()
+	void OnWebsocketReady();
+
 	void TakeDecision(const FString& Prompt) const;
 	void HandleDecision(const FString& Response);
 
@@ -80,23 +83,21 @@ public:
 	bool MoveToNPC(AActor *NPC);
 	void TalkToNPC(AActor *NPC, FString Message, TArray<FString>& ReceiversNames);
 
-	void AddAIController();
-
 protected:
 	// Base Class
 	virtual void BeginPlay() override;
 
 private:
 	// Data Persistence
-	void SaveEntityState() const;
-	void LoadEntityState();
+	// void SaveEntityState() const;
+	// void LoadEntityState();
 
 	FTimerHandle ResponseTimerHandle;
 	
 	// Attributes
 	UWebSocketHandler* WebSocketHandler;
-	bool bIsRegistered = false;
-	bool bIsConnected = false;
+	// bool bIsRegistered = false;
+	bool bIsWebsocketConnected = false;
 
 	bool bIsBusy = false;
 };

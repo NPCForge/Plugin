@@ -34,6 +34,8 @@ void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
 {
 	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Message);
 
+	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Raw message = %s"), *Message);
+
 	TSharedPtr<FJsonObject> JsonObject;
 	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
 	{
@@ -56,12 +58,52 @@ void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
 					{
 						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Register Logic"));
 						SetToken(JsonObject->GetStringField(TEXT("token")));
+						ApiUserID = JsonObject->GetNumberField(TEXT("id"));
 						bIsRegistered = true;
 					}
 					else if (Value == "Connect")
 					{
 						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Connection Logic"));
 						SetToken(JsonObject->GetStringField(TEXT("token")));
+						ApiUserID = JsonObject->GetNumberField(TEXT("id"));
+					}
+					else if (Value == "GetEntities")
+					{
+						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle GetEntities Logic"));
+						
+						if (JsonObject->HasTypedField<EJson::Array>(TEXT("entities")))
+						{
+							TArray<TSharedPtr<FJsonValue>> EntitiesArray;
+							EntitiesArray = JsonObject->GetArrayField(TEXT("entities"));
+
+							for (const TSharedPtr<FJsonValue>& Val : EntitiesArray)
+							{
+								if (Val->Type == EJson::Object)
+								{
+									TSharedPtr<FJsonObject> EntityObject = Val->AsObject();
+									if (EntityObject.IsValid())
+									{
+										FString Id = EntityObject->GetStringField(TEXT("id"));
+										FString Checksum = EntityObject->GetStringField(TEXT("checksum"));
+
+										UE_LOG(LogTemp, Log, TEXT("Entity ID: %s | Checksum: %s"), *Id, *Checksum);
+
+										RegisterEntity(Checksum, Id);
+									}
+								}
+							}
+						}
+						else
+						{
+							UE_LOG(LogTemp, Warning, TEXT("No 'entities' array found or not of array type."));
+						}
+
+						OnReady.Broadcast();
+					}
+					else if (Value == "CreateEntity")
+					{
+						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle CreateEntity Logic"));
+						RegisterEntity(JsonObject->GetStringField(TEXT("checksum")), JsonObject->GetStringField(TEXT("id")));
 					} else
 					{
 						OnMessageReceived.Broadcast(Message);
@@ -74,6 +116,11 @@ void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
 	{
 		UE_LOG(LogTemp, Error, TEXT("[NPCForge:WebSocketCommunication]: Failed to parse JSON: %s"), *Message);
 	}
+}
+
+bool UWebSocketHandler::IsEntityRegistered(const FString& Checksum) const
+{
+	return RegisteredEntities.IsValid() && RegisteredEntities->Contains(Checksum);
 }
 
 void UWebSocketHandler::Close()
@@ -127,6 +174,14 @@ void UWebSocketHandler::SetToken(const FString& NewToken)
 {
 	UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SetToken]: Setting token: %s"), *NewToken);
 	this->Token = NewToken;
+
+	if (NewToken != "")
+	{
+		bIsConnected = true;
+		SendMessage("GetEntities", nullptr);
+	}
+	else
+		bIsConnected = false;
 }
 
 void UWebSocketHandler::SaveInstanceState() const
@@ -154,24 +209,21 @@ void UWebSocketHandler::LoadInstanceState()
 	}
 }
 
+void UWebSocketHandler::RegisterEntity(const FString& Checksum, const FString& ID) const
+{
+	RegisteredEntities->Emplace(Checksum, ID);
+	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Registered entity %s on id : %s"), *Checksum, *ID);
+}
 
+void UWebSocketHandler::RegisterEntityOnApi(const FString &Name, const FString &Prompt, const FString &Checksum)
+{
+	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+	JsonBody->SetStringField("name", Name);
+	JsonBody->SetStringField("prompt", Prompt);
+	JsonBody->SetStringField("checksum", Checksum);
+	SendMessage("CreateEntity", JsonBody);
+}
 
-// void UWebSocketHandler::ConnectAPI(const FString& Checksum)
-// {
-// 	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-// 	JsonBody->SetStringField("checksum", Checksum);
-// 	SendMessage("Connection", JsonBody);
-// }
-
-// void UWebSocketHandler::RegisterAPI(const FString& Checksum, const FString& Name, const FString& Prompt)
-// {
-// 	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-// 	JsonBody->SetStringField("checksum", Checksum);
-// 	JsonBody->SetStringField("API_KEY", "VDCAjPZ8jhDmXfsSufW2oZyU8SFZi48dRhA8zyKUjSRU3T1aBZ7E8FFIjdEM2X1d");
-// 	JsonBody->SetStringField("name", Name);
-// 	JsonBody->SetStringField("prompt", Prompt);
-// 	SendMessage("Register", JsonBody);
-// }
 
 void UWebSocketHandler::RegisterAPI()
 {

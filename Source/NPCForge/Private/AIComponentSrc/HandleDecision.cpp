@@ -44,27 +44,6 @@ void UAIComponent::ParseNames(const FString& InputString, TArray<FString>& OutNa
 	TrimmedString.ParseIntoArray(OutNames, TEXT(", "), true);
 }
 
-bool UAIComponent::MoveToNPC(AActor* NPC)
-{
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (!OwnerPawn)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UAIComponent::MoveToNPC]: %s"), TEXT("Unable to find owner"));
-		return false;
-	}
-
-	AAIController* AIController = Cast<AAIController>(OwnerPawn->GetController());
-	if (AIController)
-	{
-		AIController->MoveToActor(NPC, 5.0f);
-	} else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UAIComponent::MoveToNPC]: %s"), TEXT("Unable to find AIController"));
-		return false;
-	}
-	return true;
-}
-
 void UAIComponent::TalkToNPC(AActor* NPC, FString Message,TArray<FString>& ReceiversNames)
 {
 	UAIComponent* AIComp = NPC->FindComponentByClass<UAIComponent>();
@@ -100,10 +79,7 @@ void UAIComponent::HandleDecision(const FString& Response)
 				
 				if (TargetActor)
 				{
-					// if (MoveToNPC(TargetActor))
-					// {
 					TalkToNPC(TargetActor, Message, NamesArray);
-					// }
 				}
 				else
 				{

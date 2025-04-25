@@ -26,32 +26,31 @@ void UAIComponent::BeginPlay()
 			{
 				WebSocketHandler = MyGI->GetWebSocketHandler();
 				WebSocketHandler->OnMessageReceived.AddDynamic(this, &UAIComponent::HandleWebSocketMessage);
+				WebSocketHandler->OnReady.AddDynamic(this, &UAIComponent::OnWebsocketReady);
 			}
 		} else
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Not Found Game Instance"));
 		}
 	}
-
-	
-	
-	// Generate checksum from name + prompt
-	const FString CombinedString = FString::Printf(TEXT("%s%s"), *UniqueName, *PersonalityPrompt);
-	EntityChecksum = FMD5::HashAnsiString(*CombinedString);
-	
-	LoadEntityState();
 	
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
 		MessageManager->NewMessageReceivedEvent.AddDynamic(this, &UAIComponent::HandleMessage);
 	}
-
-	// if (!bIsRegistered) {
-	// 	WebSocketHandler->RegisterAPI(EntityChecksum, UniqueName, PersonalityPrompt);
-	// } else {
-	// 	WebSocketHandler->ConnectAPI(EntityChecksum);
-	// }
 }
+
+void UAIComponent::OnWebsocketReady()
+{
+	const FString CombinedString = FString::Printf(TEXT("%s%s%d"), *UniqueName, *PersonalityPrompt, WebSocketHandler->ApiUserID);
+	EntityChecksum = FMD5::HashAnsiString(*CombinedString);
+	
+	if (!WebSocketHandler->IsEntityRegistered(EntityChecksum)) {
+		WebSocketHandler->RegisterEntityOnApi(UniqueName, PersonalityPrompt, EntityChecksum);
+	}
+	bIsWebsocketConnected = true;
+}
+
 
 void UAIComponent::TriggerSendMessageEvent(FString Message)
 {
@@ -61,39 +60,8 @@ void UAIComponent::TriggerSendMessageEvent(FString Message)
 	}
 }
 
-void UAIComponent::AddAIController()
-{
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (!OwnerPawn)
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UAIComponent::AddAIController}: Owner is not a Pawn!"));
-		return;
-	}
-
-	if (!OwnerPawn->GetController())
-	{
-		AAIController* NewAIController = GetWorld()->SpawnActor<AAIController>(AAIController::StaticClass());
-		if (NewAIController)
-		{
-			NewAIController->Possess(OwnerPawn);
-			UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::AddAIController]: AIController dynamically added to %s"), *OwnerPawn->GetName());
-		}
-		else
-		{
-			UE_LOG(LogTemp, Error, TEXT("[UAIComponent::AddAIController]: Unable to create AIController"));
-		}
-	}
-	else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::AddAIController]: %s already has an AIController"), *OwnerPawn->GetName());
-	}
-}
-
-
 void UAIComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-	SaveEntityState();
-	
 	Super::EndPlay(EndPlayReason);
 }
 
@@ -104,14 +72,13 @@ void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorCom
 	// Placeholder for functionality that runs each tick.
 	if (GetOwner())
 	{
-		if (bIsConnected && !bIsBusy)
+		if (bIsWebsocketConnected && !bIsBusy)
 		{
 			bIsBusy = true;
 			
 			const FString EnvironmentPrompt = ScanEnvironment();
 			
 			TakeDecision(EnvironmentPrompt);
-
 		}
 	}
 }
