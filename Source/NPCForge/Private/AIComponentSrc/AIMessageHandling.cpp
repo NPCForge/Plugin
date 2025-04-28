@@ -34,6 +34,7 @@ void UAIComponent::DelayResponse(FMessage Message)
 				TArray<TSharedPtr<FJsonValue>> JsonArray;
 				for (const FString& Receiver : Message.ReceiversNames)
 				{
+					// Need to send receiver checksum, not name
 					JsonArray.Add(MakeShared<FJsonValueString>(Receiver));
 				}
 				
