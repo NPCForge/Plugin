@@ -229,16 +229,16 @@ void UWebSocketHandler::RegisterAPI()
 {
 	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
 	JsonBody->SetStringField("API_KEY", "VDCAjPZ8jhDmXfsSufW2oZyU8SFZi48dRhA8zyKUjSRU3T1aBZ7E8FFIjdEM2X1d");
-	JsonBody->SetStringField("identifier", "Test");
-	JsonBody->SetStringField("password", "passTest");
+	JsonBody->SetStringField("identifier", "UserPlugin");
+	JsonBody->SetStringField("password", "password");
 	SendMessage("Register", JsonBody);
 }
 
 void UWebSocketHandler::ConnectAPI()
 {
 	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	JsonBody->SetStringField("identifier", "Test");
-	JsonBody->SetStringField("password", "passTest");
+	JsonBody->SetStringField("identifier", "UserPlugin");
+	JsonBody->SetStringField("password", "password");
 	SendMessage("Connect", JsonBody);
 }
 
