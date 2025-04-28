@@ -1,4 +1,5 @@
 ﻿#include "AIComponent.h"
+#include "WorldPartition/ContentBundle/ContentBundleLog.h"
 
 AActor* UAIComponent::FindNPCByName(const FString& NpcName)
 {
@@ -26,7 +27,7 @@ AActor* UAIComponent::FindNPCByName(const FString& NpcName)
 		UAIComponent* AIComp = Actor->FindComponentByClass<UAIComponent>();
 		if (AIComp && AIComp->UniqueName == NpcName)
 		{
-			UE_LOG(LogTemp, Log, TEXT("[NPCForge:FindNPCByName]: Successfully found %s"), *AIComp->UniqueName);
+			UE_LOG(LogTemp, Log, TEXT("[UAIComponent::FindNPCByName]: Successfully found %s"), *AIComp->UniqueName);
 			return Actor;
 		}
 	}
@@ -34,76 +35,64 @@ AActor* UAIComponent::FindNPCByName(const FString& NpcName)
 	return nullptr;
 }
 
-bool UAIComponent::MoveToNPC(AActor* NPC)
+void UAIComponent::ParseNames(const FString& InputString, TArray<FString>& OutNames)
 {
-	APawn* OwnerPawn = Cast<APawn>(GetOwner());
-	if (!OwnerPawn)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find owner"));
-		return false;
-	}
+	FString TrimmedString = InputString;
+	TrimmedString.RemoveFromStart("[");
+	TrimmedString.RemoveFromEnd("]");
 
-	AAIController* AIController = Cast<AAIController>(OwnerPawn->GetController());
-	if (AIController)
-	{
-		AIController->MoveToActor(NPC, 5.0f);
-	} else
-	{
-		UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find AIController"));
-		return false;
-	}
-	return true;
+	TrimmedString.ParseIntoArray(OutNames, TEXT(", "), true);
 }
 
-void UAIComponent::TalkToNPC(AActor* NPC, FString Message)
+void UAIComponent::TalkToNPC(AActor* NPC, FString Message,TArray<FString>& ReceiversNames)
 {
 	UAIComponent* AIComp = NPC->FindComponentByClass<UAIComponent>();
 
 	if (AIComp)
 	{
-		SendMessageToNPC(AIComp->EntityChecksum, Message);
+		SendMessageToNPC(AIComp->EntityChecksum, Message, ReceiversNames);
 	}
 }
 
 void UAIComponent::HandleDecision(const FString& Response)
 {
-	UE_LOG(LogTemp, Log, TEXT("[NPCForge:HandleDecision]: %s"), *Response);
+	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleDecision]: %s"), *Response);
 	
 	FString TalkToLine;
 	FString MessageLine;
 
 	if (Response.Split(TEXT("TalkTo: "), nullptr, &TalkToLine))
 	{
-		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle TalkTo Logic"));
+		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleDecision]: Handle TalkTo Logic"));
 
-		// Séparer la partie contenant "Message: "
 		if (TalkToLine.Split(TEXT("\nMessage: "), &TalkToLine, &MessageLine))
 		{
-			// Nettoyer les espaces
-			FString EntityName = TalkToLine.TrimStartAndEnd();
+			FString EntityNames = TalkToLine.TrimStartAndEnd();
 			FString Message = MessageLine.TrimStartAndEnd();
-        
-			AActor* TargetActor = FindNPCByName(EntityName);
 
-			if (TargetActor)
+			TArray<FString> NamesArray;
+			ParseNames(EntityNames, NamesArray);
+
+			for (const FString& EntityName : NamesArray)
 			{
-				if (MoveToNPC(TargetActor))
+				AActor* TargetActor = FindNPCByName(EntityName);
+				
+				if (TargetActor)
 				{
-					// Ajouter une attente jusqu'à ce que le NPC arrive à destination
-					TalkToNPC(TargetActor, Message);
+					TalkToNPC(TargetActor, Message, NamesArray);
 				}
-			}
-			else
-			{
-				UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find entity"));
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: %s"), TEXT("Unable to find entity"));
+				}
 			}
 		}
 		else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::HandleWebSocketMessage]: Could not find 'Message:' part"));
+			UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: Could not find 'Message:' part"));
 		}
 	} else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[NPCForge:HandleDecision]: %s"), TEXT("Unable to find an entity name"));
+		UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: %s"), TEXT("Unable to find an entity name"));
 	}
 }

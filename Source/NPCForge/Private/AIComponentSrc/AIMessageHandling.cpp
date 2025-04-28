@@ -1,18 +1,18 @@
 ﻿#include "AIComponent.h"
 
-void UAIComponent::SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content)
+void UAIComponent::SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content, TArray<FString>& ReceiversNames)
 {
 	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
 	{
-		MessageManager->SendMessage(EntityChecksum, ReceiverChecksum, Content);
+		MessageManager->SendMessage(EntityChecksum, ReceiverChecksum, Content, ReceiversNames);
 		TriggerSendMessageEvent(Content);
 	}
 }
 
 void UAIComponent::DelayResponse(FMessage Message)
 {
-	int MessageLength = Message.Content.Len();
-	float DelayTime = FMath::Clamp(MessageLength * 0.1f, 1.0f, 5.0f);
+	const int MessageLength = Message.Content.Len();
+	const float DelayTime = FMath::Clamp(MessageLength * 0.1f, 1.0f, 5.0f);
 
 	if (GetWorld())
 	{
@@ -20,11 +20,30 @@ void UAIComponent::DelayResponse(FMessage Message)
 
 		TimerManager.SetTimer(ResponseTimerHandle, [this, Message]()
 		{
-			TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-			JsonBody->SetStringField("sender", Message.SenderChecksum);
-			JsonBody->SetStringField("message", Message.Content);
-			WebSocketHandler->SendMessage("NewMessage", JsonBody);
+			const FString CombinedNames = FString::Join(Message.ReceiversNames, TEXT(" "));
+			const FString CombinedString = FString::Printf(TEXT("%s%s%s"), *Message.SenderChecksum, *Message.Content, *CombinedNames);
+			const FString MessageChecksum = FMD5::HashAnsiString(*CombinedString);
 
+			if (!WebSocketHandler->MessagesSent.Contains(MessageChecksum))
+			{
+				WebSocketHandler->MessagesSent.Add(MessageChecksum);
+				UE_LOG(LogTemp, Log, TEXT("[UAIComponent::DelayResponse]: Successfully added message: %s"), *MessageChecksum);
+
+				const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+
+				TArray<TSharedPtr<FJsonValue>> JsonArray;
+				for (const FString& Receiver : Message.ReceiversNames)
+				{
+					// Need to send receiver checksum, not name
+					JsonArray.Add(MakeShared<FJsonValueString>(Receiver));
+				}
+				
+				JsonBody->SetStringField("sender", Message.SenderChecksum);
+				JsonBody->SetArrayField("receivers", JsonArray);
+				JsonBody->SetStringField("message", Message.Content);
+				WebSocketHandler->SendMessage("NewMessage", JsonBody);
+			}
+			
 			bIsBusy = false; 
 		}, DelayTime, false);
 	}
@@ -34,7 +53,7 @@ void UAIComponent::HandleMessage(FMessage Message)
 {
 	if (Message.ReceiverChecksum == EntityChecksum)
 	{
-		UE_LOG(LogTemp, Display, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
+		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
 		
 		DelayResponse(Message);
 	}

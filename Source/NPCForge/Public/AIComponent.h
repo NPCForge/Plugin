@@ -11,6 +11,7 @@
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include "NPCForgeGameInstance.h"
 
 #include "AIComponent.generated.h"
 
@@ -47,8 +48,8 @@ public:
 	
 	// AI Message Handling
 	UFUNCTION(BlueprintCallable)
-	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content);
-
+	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content, TArray<FString>& ReceiversNames);
+	
 	// UFUNCTION(BlueprintCallable)
 	// TArray<FMessage> GetReceivedMessages() const;
 
@@ -69,15 +70,18 @@ public:
 	UFUNCTION()
 	void HandleWebSocketMessage(const FString& Message);
 
+	UFUNCTION()
+	void OnWebsocketReady();
+
 	void TakeDecision(const FString& Prompt) const;
 	void HandleDecision(const FString& Response);
 
 	AActor* FindNPCByName(const FString& NpcName);
 
-	bool MoveToNPC(AActor *NPC);
-	void TalkToNPC(AActor *NPC, FString Message);
+	void ParseNames(const FString& InputString, TArray<FString>& OutNames);
 
-	void AddAIController();
+	bool MoveToNPC(AActor *NPC);
+	void TalkToNPC(AActor *NPC, FString Message, TArray<FString>& ReceiversNames);
 
 protected:
 	// Base Class
@@ -85,15 +89,15 @@ protected:
 
 private:
 	// Data Persistence
-	void SaveEntityState() const;
-	void LoadEntityState();
+	// void SaveEntityState() const;
+	// void LoadEntityState();
 
 	FTimerHandle ResponseTimerHandle;
 	
 	// Attributes
 	UWebSocketHandler* WebSocketHandler;
-	bool bIsRegistered = false;
-	bool bIsConnected = false;
+	// bool bIsRegistered = false;
+	bool bIsWebsocketConnected = false;
 
 	bool bIsBusy = false;
 };
