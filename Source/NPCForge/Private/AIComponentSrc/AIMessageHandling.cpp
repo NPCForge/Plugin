@@ -9,6 +9,20 @@ void UAIComponent::SendMessageToNPC(const FString& ReceiverChecksum, const FStri
 	}
 }
 
+void UAIComponent::DelayBusy()
+{
+	if (GetWorld())
+	{
+		FTimerManager& TimerManager = GetWorld()->GetTimerManager();
+
+		TimerManager.SetTimer(ResponseTimerHandle, [this]()
+		{
+			bIsBusy = false; 
+		}, 5.0f, false);
+	}
+}
+
+
 void UAIComponent::DelayResponse(FMessage Message)
 {
 	const int MessageLength = Message.Content.Len();
@@ -44,7 +58,7 @@ void UAIComponent::DelayResponse(FMessage Message)
 				WebSocketHandler->SendMessage("NewMessage", JsonBody);
 			}
 			
-			bIsBusy = false; 
+			DelayBusy();
 		}, DelayTime, false);
 	}
 }

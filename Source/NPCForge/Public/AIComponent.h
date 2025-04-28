@@ -59,6 +59,8 @@ public:
 	UFUNCTION(BlueprintCallable, Category="AI")
 	void DelayResponse(FMessage Message);
 
+	void DelayBusy();
+
 
 	// Environment Discovering
 	FString ScanEnvironment();
