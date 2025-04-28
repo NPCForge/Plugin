@@ -76,12 +76,14 @@ public:
 	void TakeDecision(const FString& Prompt) const;
 	void HandleDecision(const FString& Response);
 
-	AActor* FindNPCByName(const FString& NpcName);
+	// AActor* FindNPCByName(const FString& NpcName);
+	AActor* FindNPCByChecksum(const FString& NpcChecksum);
 
-	void ParseNames(const FString& InputString, TArray<FString>& OutNames);
+	// void ParseNames(const FString& InputString, TArray<FString>& OutNames);
+	void ParseChecksums(const FString& InputString, TArray<FString>& OutChecksums);
 
 	bool MoveToNPC(AActor *NPC);
-	void TalkToNPC(AActor *NPC, FString Message, TArray<FString>& ReceiversNames);
+	void TalkToNPC(AActor *NPC, FString Message, TArray<FString>& ReceiversChecksums);
 
 protected:
 	// Base Class

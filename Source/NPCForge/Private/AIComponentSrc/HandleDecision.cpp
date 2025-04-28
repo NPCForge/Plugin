@@ -1,7 +1,41 @@
 ﻿#include "AIComponent.h"
 #include "WorldPartition/ContentBundle/ContentBundleLog.h"
 
-AActor* UAIComponent::FindNPCByName(const FString& NpcName)
+// AActor* UAIComponent::FindNPCByName(const FString& NpcName)
+// {
+// 	TArray<AActor*> OverlappingActors;
+// 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+// 	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+//
+// 	TArray<AActor*> IgnoredActors;
+// 	IgnoredActors.Add(GetOwner());
+//
+// 	// Do sphere overlap
+// 	UKismetSystemLibrary::SphereOverlapActors(
+// 		GetWorld(),
+// 		GetOwner()->GetActorLocation(),
+// 		50000,
+// 		ObjectTypes,
+// 		nullptr,
+// 		IgnoredActors,
+// 		OverlappingActors
+// 	);
+// 	
+// 	// Get entities with UAIComponent
+// 	for (AActor* Actor : OverlappingActors)
+// 	{
+// 		UAIComponent* AIComp = Actor->FindComponentByClass<UAIComponent>();
+// 		if (AIComp && AIComp->UniqueName == NpcName)
+// 		{
+// 			UE_LOG(LogTemp, Log, TEXT("[UAIComponent::FindNPCByName]: Successfully found %s"), *AIComp->UniqueName);
+// 			return Actor;
+// 		}
+// 	}
+//
+// 	return nullptr;
+// }
+
+AActor* UAIComponent::FindNPCByChecksum(const FString& NpcChecksum)
 {
 	TArray<AActor*> OverlappingActors;
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
@@ -25,9 +59,9 @@ AActor* UAIComponent::FindNPCByName(const FString& NpcName)
 	for (AActor* Actor : OverlappingActors)
 	{
 		UAIComponent* AIComp = Actor->FindComponentByClass<UAIComponent>();
-		if (AIComp && AIComp->UniqueName == NpcName)
+		if (AIComp && AIComp->EntityChecksum == NpcChecksum)
 		{
-			UE_LOG(LogTemp, Log, TEXT("[UAIComponent::FindNPCByName]: Successfully found %s"), *AIComp->UniqueName);
+			UE_LOG(LogTemp, Log, TEXT("[UAIComponent::FindNPCByName]: Successfully found %s"), *AIComp->EntityChecksum);
 			return Actor;
 		}
 	}
@@ -35,22 +69,31 @@ AActor* UAIComponent::FindNPCByName(const FString& NpcName)
 	return nullptr;
 }
 
-void UAIComponent::ParseNames(const FString& InputString, TArray<FString>& OutNames)
+// void UAIComponent::ParseNames(const FString& InputString, TArray<FString>& OutNames)
+// {
+// 	FString TrimmedString = InputString;
+// 	TrimmedString.RemoveFromStart("[");
+// 	TrimmedString.RemoveFromEnd("]");
+//
+// 	TrimmedString.ParseIntoArray(OutNames, TEXT(", "), true);
+// }
+
+void UAIComponent::ParseChecksums(const FString& InputString, TArray<FString>& OutChecksums)
 {
 	FString TrimmedString = InputString;
 	TrimmedString.RemoveFromStart("[");
 	TrimmedString.RemoveFromEnd("]");
 
-	TrimmedString.ParseIntoArray(OutNames, TEXT(", "), true);
+	TrimmedString.ParseIntoArray(OutChecksums, TEXT(", "), true);
 }
 
-void UAIComponent::TalkToNPC(AActor* NPC, FString Message,TArray<FString>& ReceiversNames)
+void UAIComponent::TalkToNPC(AActor* NPC, FString Message,TArray<FString>& ReceiversChecksums)
 {
 	UAIComponent* AIComp = NPC->FindComponentByClass<UAIComponent>();
 
 	if (AIComp)
 	{
-		SendMessageToNPC(AIComp->EntityChecksum, Message, ReceiversNames);
+		SendMessageToNPC(AIComp->EntityChecksum, Message, ReceiversChecksums);
 	}
 }
 
@@ -67,19 +110,19 @@ void UAIComponent::HandleDecision(const FString& Response)
 
 		if (TalkToLine.Split(TEXT("\nMessage: "), &TalkToLine, &MessageLine))
 		{
-			FString EntityNames = TalkToLine.TrimStartAndEnd();
+			FString EntityChecksums = TalkToLine.TrimStartAndEnd();
 			FString Message = MessageLine.TrimStartAndEnd();
 
-			TArray<FString> NamesArray;
-			ParseNames(EntityNames, NamesArray);
+			TArray<FString> ChecksumsArray;
+			ParseChecksums(EntityChecksums, ChecksumsArray);
 
-			for (const FString& EntityName : NamesArray)
+			for (const FString& Checksum : ChecksumsArray)
 			{
-				AActor* TargetActor = FindNPCByName(EntityName);
-				
+				AActor* TargetActor = FindNPCByChecksum(Checksum);
+
 				if (TargetActor)
 				{
-					TalkToNPC(TargetActor, Message, NamesArray);
+					TalkToNPC(TargetActor, Message, ChecksumsArray);
 				}
 				else
 				{

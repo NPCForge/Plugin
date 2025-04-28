@@ -43,6 +43,14 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 	TSharedPtr<FJsonObject> JsonObject;
 	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
 	{
+		if (JsonObject->GetStringField(TEXT("checksum")) != EntityChecksum)
+		{
+			// UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleWebSocketMessage]: %s not handling message for: %s"), *EntityChecksum, *JsonObject->GetStringField(TEXT("checksum")));
+			return;
+		}
+		
+		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: %s handling message for: %s"), *EntityChecksum, *JsonObject->GetStringField(TEXT("checksum")));
+
 		if (JsonObject->GetStringField(TEXT("status")) == TEXT("error"))
 		{
 			UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleWebSocketMessage]: Error received from API: %s"), *JsonObject->GetStringField(TEXT("message")));
