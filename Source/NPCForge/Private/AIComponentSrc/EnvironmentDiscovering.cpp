@@ -38,7 +38,7 @@ FString UAIComponent::ScanForNearbyEntities(float Radius, const FVector &ScanLoc
 		UAIComponent* AIComp = Actor->FindComponentByClass<UAIComponent>();
 		if (AIComp)
 		{
-			PromptString += "[Name = " + AIComp->UniqueName + "]";
+			PromptString += "[Checksum = " + AIComp->EntityChecksum + "]";
 		}
 	}
 	

@@ -11,6 +11,7 @@
 #include "Dom/JsonObject.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
+#include "NPCForgeGameInstance.h"
 
 #include "AIComponent.generated.h"
 
@@ -47,8 +48,8 @@ public:
 	
 	// AI Message Handling
 	UFUNCTION(BlueprintCallable)
-	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content);
-
+	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content, TArray<FString>& ReceiversNames);
+	
 	// UFUNCTION(BlueprintCallable)
 	// TArray<FMessage> GetReceivedMessages() const;
 
@@ -57,6 +58,8 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category="AI")
 	void DelayResponse(FMessage Message);
+
+	void DelayBusy();
 
 
 	// Environment Discovering
@@ -69,31 +72,36 @@ public:
 	UFUNCTION()
 	void HandleWebSocketMessage(const FString& Message);
 
+	UFUNCTION()
+	void OnWebsocketReady();
+
 	void TakeDecision(const FString& Prompt) const;
 	void HandleDecision(const FString& Response);
 
-	AActor* FindNPCByName(const FString& NpcName) const;
+	// AActor* FindNPCByName(const FString& NpcName);
+	AActor* FindNPCByChecksum(const FString& NpcChecksum);
 
-	bool MoveToNPC(AActor *NPC) const;
-	void TalkToNPC(const AActor *NPC, const FString &Message);
+	// void ParseNames(const FString& InputString, TArray<FString>& OutNames);
+	void ParseChecksums(const FString& InputString, TArray<FString>& OutChecksums);
 
-	void AddAIController();
+	bool MoveToNPC(AActor *NPC);
+	void TalkToNPC(AActor *NPC, FString Message, TArray<FString>& ReceiversChecksums);
+
 protected:
 	// Base Class
 	virtual void BeginPlay() override;
 
 private:
 	// Data Persistence
-	void SaveEntityState() const;
-	void LoadEntityState();
+	// void SaveEntityState() const;
+	// void LoadEntityState();
 
 	FTimerHandle ResponseTimerHandle;
 	
 	// Attributes
-	UPROPERTY()
 	UWebSocketHandler* WebSocketHandler;
-	bool bIsRegistered = false;
-	bool bIsConnected = false;
+	// bool bIsRegistered = false;
+	bool bIsWebsocketConnected = false;
 
 	bool bIsBusy = false;
 };

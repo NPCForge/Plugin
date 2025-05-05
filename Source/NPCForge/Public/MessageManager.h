@@ -21,11 +21,15 @@ struct FMessage
     FString Content;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+    TArray<FString> ReceiversNames;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
     FDateTime Timestamp;
 
     FMessage() : SenderChecksum(""), ReceiverChecksum(""), Content(""), Timestamp(FDateTime::Now()) {}
-    FMessage(FString InSenderChecksum, FString InReceiverChecksum, FString InContent)
-        : SenderChecksum(InSenderChecksum), ReceiverChecksum(InReceiverChecksum), Content(InContent), Timestamp(FDateTime::Now()) {}
+    FMessage(FString InSenderChecksum, FString InReceiverChecksum, FString InContent, TArray<FString> InReceiversNames)
+        : SenderChecksum(InSenderChecksum), ReceiverChecksum(InReceiverChecksum), Content(InContent),
+        ReceiversNames(InReceiversNames), Timestamp(FDateTime::Now()) {}
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnAIMessageReceivedEvent, FMessage, Message);
@@ -40,7 +44,7 @@ public:
 
     // Send message
     UFUNCTION(BlueprintCallable)
-    void SendMessage(const FString& SenderChecksum, const FString& ReceiverChecksum, const FString& Content);
+    void SendMessage(const FString& SenderChecksum, const FString& ReceiverChecksum, const FString& Content, TArray<FString>& ReceiversNames);
 
     // Get all messages realtime
     UFUNCTION(BlueprintCallable)
