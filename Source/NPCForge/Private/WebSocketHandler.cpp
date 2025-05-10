@@ -18,6 +18,7 @@ void UWebSocketHandler::Initialize()
 	});
     
 	Socket->OnMessage().AddLambda([this](const FString& Message) -> void {
+		bIsBusy = false;
 		HandleReceivedMessage(Message);
 	});
     
@@ -151,8 +152,13 @@ void UWebSocketHandler::SendResetMessage()
 }
 
 
-void UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody)
+bool UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody)
 {
+	if (bIsBusy)
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UWebSocketHandler::SendMessage]: Websocket is busy"));
+		return false;
+	}
 	if (!JsonBody.IsValid())
 	{
 		JsonBody = MakeShareable(new FJsonObject());
@@ -165,9 +171,11 @@ void UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObjec
 		FJsonSerializer::Serialize(JsonBody.ToSharedRef(), Writer)) {
 		Socket->Send(OutputString);
 		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: JSON message sent: %s"), *OutputString);
-	} else {
-		UE_LOG(LogTemp, Error, TEXT("[UWebSocketHandler::SendMessage]: Failed to serialize JSON"));
+		bIsBusy = true; 
+		return true;
 	}
+	UE_LOG(LogTemp, Error, TEXT("[UWebSocketHandler::SendMessage]: Failed to serialize JSON"));
+	return false;
 }
 
 void UWebSocketHandler::SetToken(const FString& NewToken)

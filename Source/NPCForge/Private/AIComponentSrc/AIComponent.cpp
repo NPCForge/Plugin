@@ -12,10 +12,10 @@ void UAIComponent::BeginPlay()
 
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::BeginPlay]: %s joined the game!"), *UniqueName);
 
-	if (UniqueName == "Pascal")
-	{
-		bIsBusy = true;
-	}
+	// if (UniqueName == "Pascal")
+	// {
+	// 	bIsBusy = true;
+	// }
 	
 	UWorld* World = GetOwner()->GetWorld();
 	if (World)
@@ -65,7 +65,7 @@ void UAIComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void UAIComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UAIComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	

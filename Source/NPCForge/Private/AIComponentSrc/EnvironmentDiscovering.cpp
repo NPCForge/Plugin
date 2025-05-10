@@ -6,7 +6,7 @@ FString UAIComponent::ScanEnvironment()
 
 	EnvironmentPrompt += ScanForNearbyEntities(50000, GetOwner()->GetActorLocation());
 
-	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::ScanEnvironment]: %s"), *EnvironmentPrompt);
+	// UE_LOG(LogTemp, Log, TEXT("[UAIComponent::ScanEnvironment]: %s"), *EnvironmentPrompt);
 	return EnvironmentPrompt;
 }
 

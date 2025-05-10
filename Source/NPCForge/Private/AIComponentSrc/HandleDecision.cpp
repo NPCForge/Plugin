@@ -134,8 +134,10 @@ void UAIComponent::HandleDecision(const FString& Response)
 		{
 			UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: Could not find 'Message:' part"));
 		}
-	} else
-	{
-		UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: %s"), TEXT("Unable to find an entity name"));
 	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: Unable to find an entity name: %s"), *Response);
+	}
+	// bIsBusy = false;
 }

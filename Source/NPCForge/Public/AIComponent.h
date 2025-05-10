@@ -75,7 +75,7 @@ public:
 	UFUNCTION()
 	void OnWebsocketReady();
 
-	void TakeDecision(const FString& Prompt) const;
+	void TakeDecision(const FString& Prompt);
 	void HandleDecision(const FString& Response);
 
 	// AActor* FindNPCByName(const FString& NpcName);
