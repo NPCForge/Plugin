@@ -26,7 +26,7 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "WebSocket")
 	void Close();
 	
-	bool SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody);
+	void SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody);
 
 	void ConnectAPI();
 	void RegisterAPI();
@@ -61,7 +61,6 @@ public:
 
 	bool bIsRegistered = false;
 	bool bIsConnected = false;
-	bool bIsBusy = false;
 
 	int ApiUserID = -1;
 private:
