@@ -6,7 +6,7 @@ UMessageManager::UMessageManager()
 
 void UMessageManager::SendMessage(const FString& SenderID, const FString& ReceiverID, const FString& Content, TArray<FString>& ReceiversNames)
 {
-	FMessage NewMessage(SenderID, ReceiverID, Content, ReceiversNames);
+	const FMessage NewMessage(SenderID, ReceiverID, Content, ReceiversNames);
 	MessageLog.Add(NewMessage);
 
 	UE_LOG(LogTemp, Log, TEXT("[UMessageManager::SendMessage]: Sending message: Sender=%s, Receiver=%s, Content=%s"), *NewMessage.SenderChecksum, *NewMessage.ReceiverChecksum, *NewMessage.Content);
@@ -19,12 +19,12 @@ TArray<FMessage> UMessageManager::GetAllMessages() const
 	return MessageLog;
 }
 
-TArray<FMessage> UMessageManager::GetMessagesForNPC(const FString& NPCID) const
+TArray<FMessage> UMessageManager::GetMessagesForNPC(const FString& NPCChecksum) const
 {
 	TArray<FMessage> FilteredMessages;
 	for (const FMessage& Message : MessageLog)
 	{
-		if (Message.ReceiverChecksum == NPCID)
+		if (Message.ReceiverChecksum == NPCChecksum)
 		{
 			FilteredMessages.Add(Message);
 		}
@@ -32,8 +32,4 @@ TArray<FMessage> UMessageManager::GetMessagesForNPC(const FString& NPCID) const
 	return FilteredMessages;
 }
 
-void UMessageManager::TriggerCustomEvent()
-{
-	UE_LOG(LogTemp, Log, TEXT("[UMessageManager::TriggerCustomEvent]: TriggerCustomEvent called in UMessageManager"));
-}
 

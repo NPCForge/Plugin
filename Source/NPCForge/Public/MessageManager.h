@@ -44,7 +44,7 @@ public:
 
     // Send message
     UFUNCTION(BlueprintCallable)
-    void SendMessage(const FString& SenderChecksum, const FString& ReceiverChecksum, const FString& Content, TArray<FString>& ReceiversNames);
+    void SendMessage(const FString& SenderID, const FString& ReceiverID, const FString& Content, TArray<FString>& ReceiversNames);
 
     // Get all messages realtime
     UFUNCTION(BlueprintCallable)
@@ -56,10 +56,6 @@ public:
 
     UPROPERTY(BlueprintAssignable, Category = "Events")
     FOnAIMessageReceivedEvent NewMessageReceivedEvent;
-
-    // Trigger event
-    UFUNCTION(BlueprintCallable, Category = "Events")
-    void TriggerCustomEvent();
 
 private:
     TArray<FMessage> MessageLog;
