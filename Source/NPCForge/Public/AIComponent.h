@@ -75,11 +75,13 @@ public:
 	UFUNCTION()
 	void OnWebsocketReady();
 
-	void TakeDecision(const FString& Prompt);
+	void MakeDecision(const FString& Prompt);
 	void HandleDecision(const FString& Response);
 
 	// AActor* FindNPCByName(const FString& NpcName);
 	AActor* FindNPCByChecksum(const FString& NpcChecksum);
+
+	TArray<AActor*> FindNpCs() const;
 
 	// void ParseNames(const FString& InputString, TArray<FString>& OutNames);
 	void ParseChecksums(const FString& InputString, TArray<FString>& OutChecksums);
@@ -95,6 +97,9 @@ private:
 	// Data Persistence
 	// void SaveEntityState() const;
 	// void LoadEntityState();
+
+	float TimeSinceLastDecision = 0.0f;
+	float DecisionInterval = 3.0f;
 
 	FTimerHandle ResponseTimerHandle;
 	

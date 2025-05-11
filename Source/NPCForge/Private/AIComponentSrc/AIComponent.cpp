@@ -11,11 +11,6 @@ void UAIComponent::BeginPlay()
 	Super::BeginPlay();
 
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::BeginPlay]: %s joined the game!"), *UniqueName);
-
-	// if (UniqueName == "Pascal")
-	// {
-	// 	bIsBusy = true;
-	// }
 	
 	UWorld* World = GetOwner()->GetWorld();
 	if (World)
@@ -69,16 +64,17 @@ void UAIComponent::TickComponent(const float DeltaTime, const ELevelTick TickTyp
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	
-	// Placeholder for functionality that runs each tick.
-	if (GetOwner())
+	if (!GetOwner()) return;
+
+	TimeSinceLastDecision += DeltaTime;
+    
+	if (bIsWebsocketConnected && !bIsBusy && TimeSinceLastDecision >= DecisionInterval)
 	{
-		if (bIsWebsocketConnected && !bIsBusy)
-		{
-			bIsBusy = true;
-			
-			const FString EnvironmentPrompt = ScanEnvironment();
-			
-			TakeDecision(EnvironmentPrompt);
-		}
+		bIsBusy = true;
+		TimeSinceLastDecision = 0.0f;
+
+		const FString EnvironmentPrompt = ScanEnvironment();
+		MakeDecision(EnvironmentPrompt);
 	}
+
 }

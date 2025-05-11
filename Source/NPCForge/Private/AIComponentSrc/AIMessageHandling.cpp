@@ -65,10 +65,10 @@ void UAIComponent::DelayResponse(FMessage Message)
 
 void UAIComponent::HandleMessage(FMessage Message)
 {
-	if (Message.ReceiverChecksum == EntityChecksum)
-	{
-		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
-		
-		DelayResponse(Message);
-	}
+	// if (Message.ReceiverChecksum == EntityChecksum)
+	// {
+	// 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleMessage]: %s received from %s : %s"), *EntityChecksum, *Message.SenderChecksum, *Message.Content);
+	// 	
+	// 	DelayResponse(Message);
+	// }
 }

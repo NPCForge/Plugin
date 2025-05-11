@@ -69,6 +69,42 @@ AActor* UAIComponent::FindNPCByChecksum(const FString& NpcChecksum)
 	return nullptr;
 }
 
+TArray<AActor*> UAIComponent::FindNpCs() const
+{
+	TArray<AActor*> OverlappingActors;
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
+
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(GetOwner());
+
+	// Do sphere overlap
+	UKismetSystemLibrary::SphereOverlapActors(
+		GetWorld(),
+		GetOwner()->GetActorLocation(),
+		50000,
+		ObjectTypes,
+		nullptr,
+		IgnoredActors,
+		OverlappingActors
+	);
+
+	TArray<AActor*> NpCs;
+	
+	// Get entities with UAIComponent
+	for (AActor* Actor : OverlappingActors)
+	{
+		UAIComponent* AIComp = Actor->FindComponentByClass<UAIComponent>();
+		
+		if (AIComp && AIComp->EntityChecksum != EntityChecksum)
+		{
+			NpCs.Add(Actor);
+		}
+	}
+
+	return NpCs;
+}
+
 // void UAIComponent::ParseNames(const FString& InputString, TArray<FString>& OutNames)
 // {
 // 	FString TrimmedString = InputString;
@@ -115,6 +151,18 @@ void UAIComponent::HandleDecision(const FString& Response)
 
 			TArray<FString> ChecksumsArray;
 			ParseChecksums(EntityChecksums, ChecksumsArray);
+
+			if (ChecksumsArray.Contains("Everyone"))
+			{
+				const auto Entities = FindNpCs();
+
+				for (const auto Entity : Entities)
+				{
+					TalkToNPC(Entity, Message, ChecksumsArray);
+				}
+				
+				return;
+			}
 
 			for (const FString& Checksum : ChecksumsArray)
 			{
