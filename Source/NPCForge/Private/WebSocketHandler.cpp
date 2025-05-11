@@ -32,12 +32,12 @@ void UWebSocketHandler::Initialize()
 
 void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
 {
-	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Message);
+	const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(Message);
 
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Raw message = %s"), *Message);
-
-	TSharedPtr<FJsonObject> JsonObject;
-	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
+	
+	if (TSharedPtr<FJsonObject> JsonObject;
+		FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
 	{
 		if (JsonObject->GetStringField(TEXT("status")) == TEXT("error"))
 		{
@@ -80,8 +80,8 @@ void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
 							{
 								if (Val->Type == EJson::Object)
 								{
-									TSharedPtr<FJsonObject> EntityObject = Val->AsObject();
-									if (EntityObject.IsValid())
+									if (TSharedPtr<FJsonObject> EntityObject = Val->AsObject();
+										EntityObject.IsValid())
 									{
 										FString Id = EntityObject->GetStringField(TEXT("id"));
 										FString Checksum = EntityObject->GetStringField(TEXT("checksum"));
@@ -129,29 +129,7 @@ void UWebSocketHandler::Close()
 	Socket->Close();
 }
 
-void UWebSocketHandler::ResetGame()
-{
-	SendResetMessage();
-}
-
-void UWebSocketHandler::SendResetMessage()
-{
-	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	JsonBody->SetStringField("action", "ResetGame");
-
-	FString OutputString;
-
-	if (const TSharedRef<TJsonWriter<>> Writer = TJsonWriterFactory<>::Create(&OutputString);
-		FJsonSerializer::Serialize(JsonBody.ToSharedRef(), Writer)) {
-		Socket->Send(OutputString);
-		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: JSON message sent: %s"), *OutputString);
-	} else {
-		UE_LOG(LogTemp, Error, TEXT("[UWebSocketHandler::SendMessage]: Failed to serialize JSON"));
-	}
-}
-
-
-void UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody)
+void UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody) const
 {
 	if (!JsonBody.IsValid())
 	{
@@ -165,7 +143,8 @@ void UWebSocketHandler::SendMessage(const FString& Action, TSharedPtr<FJsonObjec
 		FJsonSerializer::Serialize(JsonBody.ToSharedRef(), Writer)) {
 		Socket->Send(OutputString);
 		UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::SendMessage]: JSON message sent: %s"), *OutputString);
-	} else {
+	} else
+	{
 		UE_LOG(LogTemp, Error, TEXT("[UWebSocketHandler::SendMessage]: Failed to serialize JSON"));
 	}
 }
@@ -215,7 +194,7 @@ void UWebSocketHandler::RegisterEntity(const FString& Checksum, const FString& I
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Registered entity %s on id : %s"), *Checksum, *ID);
 }
 
-void UWebSocketHandler::RegisterEntityOnApi(const FString &Name, const FString &Prompt, const FString &Checksum)
+void UWebSocketHandler::RegisterEntityOnApi(const FString &Name, const FString &Prompt, const FString &Checksum) const
 {
 	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
 	JsonBody->SetStringField("name", Name);
@@ -225,7 +204,7 @@ void UWebSocketHandler::RegisterEntityOnApi(const FString &Name, const FString &
 }
 
 
-void UWebSocketHandler::RegisterAPI()
+void UWebSocketHandler::RegisterAPI() const
 {
 	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
 	JsonBody->SetStringField("API_KEY", "VDCAjPZ8jhDmXfsSufW2oZyU8SFZi48dRhA8zyKUjSRU3T1aBZ7E8FFIjdEM2X1d");
@@ -234,7 +213,7 @@ void UWebSocketHandler::RegisterAPI()
 	SendMessage("Register", JsonBody);
 }
 
-void UWebSocketHandler::ConnectAPI()
+void UWebSocketHandler::ConnectAPI() const
 {
 	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
 	JsonBody->SetStringField("identifier", "UserPlugin");

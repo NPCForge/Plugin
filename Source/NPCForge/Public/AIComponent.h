@@ -35,7 +35,7 @@ public:
 	FOnSendMessage OnSendMessage;
 
 	UFUNCTION(BlueprintCallable, Category="MyComponent")
-	void TriggerSendMessageEvent(FString Value);
+	void TriggerSendMessageEvent(const FString Message) const;
 	
 	// Properties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
@@ -45,56 +45,33 @@ public:
 	FString UniqueName;
 
 	FString EntityChecksum;
-	
-	// AI Message Handling
-	UFUNCTION(BlueprintCallable)
-	void SendMessageToNPC(const FString& ReceiverChecksum, const FString& Content, TArray<FString>& ReceiversNames);
-	
-	// UFUNCTION(BlueprintCallable)
-	// TArray<FMessage> GetReceivedMessages() const;
-
-	UFUNCTION()
-	void HandleMessage(FMessage Message);
-
-	UFUNCTION(BlueprintCallable, Category="AI")
-	void DelayResponse(FMessage Message);
-
-	void DelayBusy();
 
 
 	// Environment Discovering
 	FString ScanEnvironment();
 
-	FString ScanForNearbyEntities(float Radius, const FVector &ScanLocation);
+	FString ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const;
 
 
 	// WebSocket Communication
 	UFUNCTION()
-	void HandleWebSocketMessage(const FString& Message);
+	void HandleWebSocketMessage(const FString& JsonString);
 
 	UFUNCTION()
 	void OnWebsocketReady();
 
-	void TakeDecision(const FString& Prompt) const;
+	void MakeDecision(const FString& Prompt) const;
 	void HandleDecision(const FString& Response);
-
-	// AActor* FindNPCByName(const FString& NpcName);
-	AActor* FindNPCByChecksum(const FString& NpcChecksum);
-
-	// void ParseNames(const FString& InputString, TArray<FString>& OutNames);
-	void ParseChecksums(const FString& InputString, TArray<FString>& OutChecksums);
-
-	bool MoveToNPC(AActor *NPC);
-	void TalkToNPC(AActor *NPC, FString Message, TArray<FString>& ReceiversChecksums);
+	
+	static void ParseChecksums(const FString& InputString, TArray<FString>& OutChecksums);
 
 protected:
 	// Base Class
 	virtual void BeginPlay() override;
 
 private:
-	// Data Persistence
-	// void SaveEntityState() const;
-	// void LoadEntityState();
+	float TimeSinceLastDecision = 0.0f;
+	float DecisionInterval = 3.0f;
 
 	FTimerHandle ResponseTimerHandle;
 	
