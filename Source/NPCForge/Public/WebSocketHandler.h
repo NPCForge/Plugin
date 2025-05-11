@@ -26,21 +26,16 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "WebSocket")
 	void Close();
 	
-	void SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody);
+	void SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody) const;
 
-	void ConnectAPI();
-	void RegisterAPI();
+	void ConnectAPI() const;
+	void RegisterAPI() const;
 	void DisconnectAPI();
 	
 	void RegisterEntity(const FString& Checksum, const FString& ID) const;
-	void RegisterEntityOnApi(const FString &Name, const FString &Prompt, const FString &Checksum);
-
-	UFUNCTION(BlueprintCallable, Category = "WebSocket")
-	void ResetGame();
-
-	void SendResetMessage();
-
-	void SetToken(const FString& Token);
+	void RegisterEntityOnApi(const FString &Name, const FString &Prompt, const FString &Checksum) const;
+	
+	void SetToken(const FString& NewToken);
 
 	void SaveInstanceState() const;
 	void LoadInstanceState();
@@ -56,9 +51,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
 	FOnWebSocketReady OnReady;
-
-	FTimerHandle ResetGameTimerHandle;
-
+	
 	bool bIsRegistered = false;
 	bool bIsConnected = false;
 

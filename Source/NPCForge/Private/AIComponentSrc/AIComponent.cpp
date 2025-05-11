@@ -12,8 +12,7 @@ void UAIComponent::BeginPlay()
 
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::BeginPlay]: %s joined the game!"), *UniqueName);
 	
-	UWorld* World = GetOwner()->GetWorld();
-	if (World)
+	if (const UWorld* World = GetOwner()->GetWorld())
 	{
 		if (auto* MyGI = Cast<UNPCForgeGameInstance>(World->GetGameInstance()))
 		{
@@ -27,11 +26,6 @@ void UAIComponent::BeginPlay()
 		{
 			UE_LOG(LogTemp, Warning, TEXT("Not Found Game Instance"));
 		}
-	}
-	
-	if (UMessageManager* MessageManager = GetWorld()->GetSubsystem<UMessageManager>())
-	{
-		MessageManager->NewMessageReceivedEvent.AddDynamic(this, &UAIComponent::HandleMessage);
 	}
 }
 
@@ -47,7 +41,7 @@ void UAIComponent::OnWebsocketReady()
 }
 
 
-void UAIComponent::TriggerSendMessageEvent(FString Message)
+void UAIComponent::TriggerSendMessageEvent(const FString Message) const
 {
 	if (OnSendMessage.IsBound())
 	{
