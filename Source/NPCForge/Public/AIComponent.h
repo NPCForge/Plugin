@@ -71,7 +71,7 @@ protected:
 
 private:
 	float TimeSinceLastDecision = 0.0f;
-	float DecisionInterval = 3.0f;
+	float DecisionInterval = 5.0f;
 
 	FTimerHandle ResponseTimerHandle;
 	
