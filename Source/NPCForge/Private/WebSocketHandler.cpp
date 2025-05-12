@@ -210,6 +210,7 @@ void UWebSocketHandler::RegisterAPI() const
 	JsonBody->SetStringField("API_KEY", "VDCAjPZ8jhDmXfsSufW2oZyU8SFZi48dRhA8zyKUjSRU3T1aBZ7E8FFIjdEM2X1d");
 	JsonBody->SetStringField("identifier", "UserPlugin");
 	JsonBody->SetStringField("password", "password");
+	JsonBody->SetStringField("game_prompt", "You are playing a turn-based social deduction game: **Werewolf**. Goal: Identify the werewolves while protecting the innocent. Make decisions and statements based on that. At each turn, analyze the discussion and try to deduce who could be a werewolf. Do not forget this goal. Roleplay is secondary.");
 	SendMessage("Register", JsonBody);
 }
 
