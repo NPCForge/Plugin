@@ -2,19 +2,18 @@
 
 FString ExtractGptMessage(const FString& Message)
 {
-	FString GptResponse;
-
-	TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(Message);
+	const TSharedRef<TJsonReader<TCHAR>> JsonReader = TJsonReaderFactory<TCHAR>::Create(Message);
 
 	TSharedPtr<FJsonObject> JsonObject;
 
-	if (FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
+	if (FString GptResponse;
+		FJsonSerializer::Deserialize(JsonReader, JsonObject) && JsonObject.IsValid())
 	{
-		FString OverallStatus;
-		if (JsonObject->TryGetStringField(TEXT("status"), OverallStatus) && OverallStatus == TEXT("success"))
+		if (FString OverallStatus;
+			JsonObject->TryGetStringField(TEXT("status"), OverallStatus) && OverallStatus == TEXT("success"))
 		{
-			TSharedPtr<FJsonObject> DataObject = JsonObject->GetObjectField(TEXT("data"));
-			if (DataObject.IsValid())
+			if (const TSharedPtr<FJsonObject> DataObject = JsonObject->GetObjectField(TEXT("data"));
+				DataObject.IsValid())
 			{
 				if (DataObject->TryGetStringField(TEXT("message"), GptResponse))
 				{
@@ -27,7 +26,7 @@ FString ExtractGptMessage(const FString& Message)
 	return FString();
 }
 
-void UAIComponent::TakeDecision(const FString& Prompt) const
+void UAIComponent::MakeDecision(const FString& Prompt) const
 {
 	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
 	JsonBody->SetStringField("message", Prompt);
@@ -38,14 +37,13 @@ void UAIComponent::TakeDecision(const FString& Prompt) const
 
 void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 {
-	TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
-
-	TSharedPtr<FJsonObject> JsonObject;
-	if (FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
+	const TSharedRef<TJsonReader<>> Reader = TJsonReaderFactory<>::Create(JsonString);
+	
+	if (TSharedPtr<FJsonObject> JsonObject;
+		FJsonSerializer::Deserialize(Reader, JsonObject) && JsonObject.IsValid())
 	{
 		if (JsonObject->GetStringField(TEXT("checksum")) != EntityChecksum)
 		{
-			// UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleWebSocketMessage]: %s not handling message for: %s"), *EntityChecksum, *JsonObject->GetStringField(TEXT("checksum")));
 			return;
 		}
 		

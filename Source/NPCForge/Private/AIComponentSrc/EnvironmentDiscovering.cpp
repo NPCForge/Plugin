@@ -4,13 +4,13 @@ FString UAIComponent::ScanEnvironment()
 {
 	FString EnvironmentPrompt = "";
 
-	EnvironmentPrompt += ScanForNearbyEntities(50000, GetOwner()->GetActorLocation());
+	// EnvironmentPrompt += ScanForNearbyEntities(50000, GetOwner()->GetActorLocation());
 
-	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::ScanEnvironment]: %s"), *EnvironmentPrompt);
+	// UE_LOG(LogTemp, Log, TEXT("[UAIComponent::ScanEnvironment]: %s"), *EnvironmentPrompt);
 	return EnvironmentPrompt;
 }
 
-FString UAIComponent::ScanForNearbyEntities(float Radius, const FVector &ScanLocation)
+FString UAIComponent::ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const
 {
 	TArray<AActor*> OverlappingActors;
 	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes; // Object type to detect
@@ -33,10 +33,9 @@ FString UAIComponent::ScanForNearbyEntities(float Radius, const FVector &ScanLoc
 	FString PromptString = "Nearby Entities: {";
 
 	// Get entities with UAIComponent
-	for (AActor* Actor : OverlappingActors)
+	for (const AActor* Actor : OverlappingActors)
 	{
-		UAIComponent* AIComp = Actor->FindComponentByClass<UAIComponent>();
-		if (AIComp)
+		if (const UAIComponent* AIComp = Actor->FindComponentByClass<UAIComponent>())
 		{
 			PromptString += "[Checksum = " + AIComp->EntityChecksum + "]";
 		}
