@@ -2,12 +2,19 @@
 
 FString UAIComponent::ScanEnvironment()
 {
-	FString EnvironmentPrompt = "";
+	FString EnvironmentPrompt = "{";
 
+	EnvironmentPrompt += GetPhase();
 	// EnvironmentPrompt += ScanForNearbyEntities(50000, GetOwner()->GetActorLocation());
 
 	// UE_LOG(LogTemp, Log, TEXT("[UAIComponent::ScanEnvironment]: %s"), *EnvironmentPrompt);
-	return EnvironmentPrompt;
+	return EnvironmentPrompt + "}";
+}
+
+FString UAIComponent::GetPhase()
+{
+	FString jsonString = FString(TEXT("\"phase\": \"Discussion\""));
+	return jsonString;
 }
 
 FString UAIComponent::ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const
