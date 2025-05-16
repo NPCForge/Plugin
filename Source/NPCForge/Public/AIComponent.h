@@ -50,6 +50,8 @@ public:
 	// Environment Discovering
 	FString ScanEnvironment();
 
+	static FString GetPhase();
+
 	FString ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const;
 
 
@@ -61,7 +63,7 @@ public:
 	void OnWebsocketReady();
 
 	void MakeDecision(const FString& Prompt) const;
-	void HandleDecision(const FString& Response);
+	void HandleDecision(const TSharedPtr<FJsonObject> &JsonObject);
 	
 	static void ParseChecksums(const FString& InputString, TArray<FString>& OutChecksums);
 
@@ -71,7 +73,7 @@ protected:
 
 private:
 	float TimeSinceLastDecision = 0.0f;
-	float DecisionInterval = 3.0f;
+	float DecisionInterval = 5.0f;
 
 	FTimerHandle ResponseTimerHandle;
 	

@@ -68,7 +68,7 @@ void UAIComponent::HandleWebSocketMessage(const FString& JsonString)
 					if (Value == "MakeDecision")
 					{
 						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle MakeDecision Logic"));
-						HandleDecision(*JsonObject->GetStringField(TEXT("message")));
+						HandleDecision(JsonObject);
 					}
 				}
 			}
