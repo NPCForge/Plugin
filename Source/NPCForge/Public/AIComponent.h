@@ -12,6 +12,7 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "NPCForgeGameInstance.h"
+#include "AIInterface.h"
 
 #include "AIComponent.generated.h"
 
@@ -67,6 +68,8 @@ public:
 	
 	static void ParseChecksums(const FString& InputString, TArray<FString>& OutChecksums);
 
+	void CheckGameRole();
+	
 protected:
 	// Base Class
 	virtual void BeginPlay() override;
@@ -74,6 +77,10 @@ protected:
 private:
 	float TimeSinceLastDecision = 0.0f;
 	float DecisionInterval = 5.0f;
+
+	FTimerHandle RoleCheckTimerHandle;
+	float RoleCheckElapsed = 0.0f;
+	FString CachedRole;
 
 	FTimerHandle ResponseTimerHandle;
 	

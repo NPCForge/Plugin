@@ -27,6 +27,41 @@ void UAIComponent::BeginPlay()
 			UE_LOG(LogTemp, Warning, TEXT("Not Found Game Instance"));
 		}
 	}
+
+	
+	RoleCheckElapsed = 0.0f;
+
+	GetWorld()->GetTimerManager().SetTimer(
+		RoleCheckTimerHandle,
+		this,
+		&UAIComponent::CheckGameRole,
+		0.2f,
+		true
+	);
+}
+
+void UAIComponent::CheckGameRole()
+{
+	RoleCheckElapsed += 0.2f;
+	
+	if (AActor* Owner = GetOwner();
+		Owner && Owner->GetClass()->ImplementsInterface(UAIInterface::StaticClass()))
+	{
+		if (FString Role = IAIInterface::Execute_GetGameRole(Owner);
+			Role != "None")
+		{
+			CachedRole = Role;
+			UE_LOG(LogTemp, Warning, TEXT("Final Role: %s"), *Role);
+			GetWorld()->GetTimerManager().ClearTimer(RoleCheckTimerHandle);
+			return;
+		}
+	}
+
+	if (RoleCheckElapsed >= 10.0f)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Timeout waiting for GetGameRole() != None"));
+		GetWorld()->GetTimerManager().ClearTimer(RoleCheckTimerHandle);
+	}
 }
 
 void UAIComponent::OnWebsocketReady()
@@ -61,7 +96,7 @@ void UAIComponent::TickComponent(const float DeltaTime, const ELevelTick TickTyp
 	if (!GetOwner()) return;
 
 	TimeSinceLastDecision += DeltaTime;
-    
+	
 	if (bIsWebsocketConnected && !bIsBusy && TimeSinceLastDecision >= DecisionInterval)
 	{
 		bIsBusy = true;
