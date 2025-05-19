@@ -70,7 +70,7 @@ void UAIComponent::OnWebsocketReady()
 	EntityChecksum = FMD5::HashAnsiString(*CombinedString);
 	
 	if (!WebSocketHandler->IsEntityRegistered(EntityChecksum)) {
-		WebSocketHandler->RegisterEntityOnApi(UniqueName, PersonalityPrompt, EntityChecksum);
+		WebSocketHandler->RegisterEntityOnApi(UniqueName, PersonalityPrompt, EntityChecksum, CachedRole);
 	}
 	bIsWebsocketConnected = true;
 }
