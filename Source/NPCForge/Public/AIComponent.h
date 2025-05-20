@@ -13,6 +13,7 @@
 #include "Serialization/JsonSerializer.h"
 #include "NPCForgeGameInstance.h"
 #include "AIInterface.h"
+#include "MyGameMode.h"
 
 #include "AIComponent.generated.h"
 
@@ -51,7 +52,7 @@ public:
 	// Environment Discovering
 	FString ScanEnvironment();
 
-	static FString GetPhase();
+	FString GetPhase() const;
 
 	FString ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const;
 
@@ -81,6 +82,8 @@ private:
 	FTimerHandle RoleCheckTimerHandle;
 	float RoleCheckElapsed = 0.0f;
 	FString CachedRole;
+
+	AMyGameMode *GameMode;
 
 	FTimerHandle ResponseTimerHandle;
 	
