@@ -11,10 +11,9 @@ FString UAIComponent::ScanEnvironment()
 	return EnvironmentPrompt + "}";
 }
 
-FString UAIComponent::GetPhase()
+FString UAIComponent::GetPhase() const
 {
-	FString jsonString = FString(TEXT("\"phase\": \"Discussion\""));
-	return jsonString;
+	return FString::Printf(TEXT("\"phase\": \"%s\""), *GameMode->GetPhase());
 }
 
 FString UAIComponent::ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const

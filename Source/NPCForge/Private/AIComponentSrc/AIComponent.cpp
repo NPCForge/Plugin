@@ -28,6 +28,8 @@ void UAIComponent::BeginPlay()
 		}
 	}
 
+	GameMode = Cast<AMyGameMode>(GetWorld()->GetAuthGameMode());
+
 	
 	RoleCheckElapsed = 0.0f;
 
@@ -103,6 +105,9 @@ void UAIComponent::TickComponent(const float DeltaTime, const ELevelTick TickTyp
 		TimeSinceLastDecision = 0.0f;
 
 		const FString EnvironmentPrompt = ScanEnvironment();
+
+		UE_LOG(LogTemp, Log, TEXT("Env = %s"), *EnvironmentPrompt)
+		
 		MakeDecision(EnvironmentPrompt);
 	}
 
