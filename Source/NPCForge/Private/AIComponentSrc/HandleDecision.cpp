@@ -28,7 +28,7 @@ void UAIComponent::HandleDecision(const TSharedPtr<FJsonObject> &JsonObject)
 		{
 			UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: Message is not for everyone"));
 		}
-	} else if (Action == TEXT("TalkTo"))
+	} else if (Action == TEXT("VoteFor"))
 	{
 		const FString Target = JsonObject->GetStringField(TEXT("VoteFor"));
 		UE_LOG(LogTemp, Log, TEXT("%s vote for %s"), *UniqueName, *Target)
