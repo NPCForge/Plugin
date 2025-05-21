@@ -2,6 +2,7 @@
 
 UAIComponent::UAIComponent()
 {
+	GameMode = nullptr;
 	WebSocketHandler = nullptr;
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -29,17 +30,6 @@ void UAIComponent::BeginPlay()
 	}
 
 	GameMode = Cast<AMyGameMode>(GetWorld()->GetAuthGameMode());
-
-	
-	RoleCheckElapsed = 0.0f;
-
-	GetWorld()->GetTimerManager().SetTimer(
-		RoleCheckTimerHandle,
-		this,
-		&UAIComponent::CheckGameRole,
-		0.2f,
-		true
-	);
 }
 
 void UAIComponent::CheckGameRole()
@@ -55,6 +45,15 @@ void UAIComponent::CheckGameRole()
 			CachedRole = Role;
 			UE_LOG(LogTemp, Warning, TEXT("Final Role: %s"), *Role);
 			GetWorld()->GetTimerManager().ClearTimer(RoleCheckTimerHandle);
+
+			const FString CombinedString = FString::Printf(TEXT("%s%s%d"), *UniqueName, *PersonalityPrompt, WebSocketHandler->ApiUserID);
+			EntityChecksum = FMD5::HashAnsiString(*CombinedString);
+	
+			if (!WebSocketHandler->IsEntityRegistered(EntityChecksum)) {
+				WebSocketHandler->RegisterEntityOnApi(UniqueName, PersonalityPrompt, EntityChecksum, CachedRole);
+			}
+			bIsWebsocketConnected = true;
+			
 			return;
 		}
 	}
@@ -68,13 +67,15 @@ void UAIComponent::CheckGameRole()
 
 void UAIComponent::OnWebsocketReady()
 {
-	const FString CombinedString = FString::Printf(TEXT("%s%s%d"), *UniqueName, *PersonalityPrompt, WebSocketHandler->ApiUserID);
-	EntityChecksum = FMD5::HashAnsiString(*CombinedString);
+	RoleCheckElapsed = 0.0f;
 	
-	if (!WebSocketHandler->IsEntityRegistered(EntityChecksum)) {
-		WebSocketHandler->RegisterEntityOnApi(UniqueName, PersonalityPrompt, EntityChecksum, CachedRole);
-	}
-	bIsWebsocketConnected = true;
+	GetWorld()->GetTimerManager().SetTimer(
+		RoleCheckTimerHandle,
+		this,
+		&UAIComponent::CheckGameRole,
+		0.2f,
+		true
+	);
 }
 
 
@@ -99,7 +100,7 @@ void UAIComponent::TickComponent(const float DeltaTime, const ELevelTick TickTyp
 
 	TimeSinceLastDecision += DeltaTime;
 	
-	if (bIsWebsocketConnected && !bIsBusy && TimeSinceLastDecision >= DecisionInterval)
+	if (bIsWebsocketConnected && !bIsBusy && TimeSinceLastDecision >= DecisionInterval && CachedRole != "None")
 	{
 		bIsBusy = true;
 		TimeSinceLastDecision = 0.0f;

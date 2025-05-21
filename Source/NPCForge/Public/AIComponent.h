@@ -52,7 +52,7 @@ public:
 	// Environment Discovering
 	FString ScanEnvironment();
 
-	FString GetPhase() const;
+	FString GetPhase();
 
 	FString ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const;
 
@@ -81,7 +81,7 @@ private:
 
 	FTimerHandle RoleCheckTimerHandle;
 	float RoleCheckElapsed = 0.0f;
-	FString CachedRole;
+	FString CachedRole = "None";
 
 	AMyGameMode *GameMode;
 
@@ -93,4 +93,8 @@ private:
 	bool bIsWebsocketConnected = false;
 
 	bool bIsBusy = false;
+
+
+	int CountDecisions = 0;
+	FString CurrentPhase;
 };
