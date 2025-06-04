@@ -50,7 +50,7 @@ public:
     UFUNCTION(BlueprintCallable)
     TArray<FMessage> GetAllMessages() const;
 
-    // Get messages fo specific NPC
+    // Get messages for specific NPC
     UFUNCTION(BlueprintCallable)
     TArray<FMessage> GetMessagesForNPC(const FString& NPCChecksum) const;
 
