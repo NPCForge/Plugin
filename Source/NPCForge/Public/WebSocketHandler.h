@@ -33,7 +33,7 @@ public:
 	void DisconnectAPI();
 	
 	void RegisterEntity(const FString& Checksum, const FString& ID) const;
-	void RegisterEntityOnApi(const FString &Name, const FString &Prompt, const FString &Checksum) const;
+	void RegisterEntityOnApi(const FString &Name, const FString &Prompt, const FString &Checksum, const FString &Role) const;
 	
 	void SetToken(const FString& NewToken);
 

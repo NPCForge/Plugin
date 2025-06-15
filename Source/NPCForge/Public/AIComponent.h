@@ -12,6 +12,8 @@
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "NPCForgeGameInstance.h"
+#include "AIInterface.h"
+#include "MyGameMode.h"
 
 #include "AIComponent.generated.h"
 
@@ -50,7 +52,7 @@ public:
 	// Environment Discovering
 	FString ScanEnvironment();
 
-	static FString GetPhase();
+	FString GetPhase();
 
 	FString ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const;
 
@@ -67,6 +69,8 @@ public:
 	
 	static void ParseChecksums(const FString& InputString, TArray<FString>& OutChecksums);
 
+	void CheckGameRole();
+	
 protected:
 	// Base Class
 	virtual void BeginPlay() override;
@@ -74,6 +78,12 @@ protected:
 private:
 	float TimeSinceLastDecision = 0.0f;
 	float DecisionInterval = 5.0f;
+
+	FTimerHandle RoleCheckTimerHandle;
+	float RoleCheckElapsed = 0.0f;
+	FString CachedRole = "None";
+
+	AMyGameMode *GameMode;
 
 	FTimerHandle ResponseTimerHandle;
 	
@@ -83,4 +93,8 @@ private:
 	bool bIsWebsocketConnected = false;
 
 	bool bIsBusy = false;
+
+
+	int CountDecisions = 0;
+	FString CurrentPhase;
 };

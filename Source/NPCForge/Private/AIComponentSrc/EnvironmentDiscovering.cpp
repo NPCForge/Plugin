@@ -13,8 +13,24 @@ FString UAIComponent::ScanEnvironment()
 
 FString UAIComponent::GetPhase()
 {
-	FString jsonString = FString(TEXT("\"phase\": \"Discussion\""));
-	return jsonString;
+	// Need to remove this, just using to manually changing phase
+	
+	if (CountDecisions == 0)
+	{
+		CurrentPhase = TEXT("Discussion");
+	} else if (CountDecisions == 4)
+	{
+		CurrentPhase = TEXT("Voting");
+	} else if (CountDecisions == 5)
+	{
+		CurrentPhase = TEXT("Night");
+	} else if (CountDecisions == 6)
+	{
+		CurrentPhase = TEXT("None");
+	}
+	CountDecisions++;
+	// return FString::Printf(TEXT("\"phase\": \"%s\""), *GameMode->GetPhase());
+	return FString::Printf(TEXT("\"phase\": \"%s\""), *CurrentPhase);
 }
 
 FString UAIComponent::ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const
