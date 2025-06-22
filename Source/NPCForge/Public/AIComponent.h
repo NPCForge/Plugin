@@ -17,6 +17,7 @@
 #include "AIComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSendMessage, FString, Message, FString, Reasoning);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnVote, FString, Voter, FString, VoteTarget);
 
 UCLASS(ClassGroup=(AI), meta=(BlueprintSpawnableComponent, DisplayName="NPCForge", ToolTip="Mark as NPC"))
 class NPCFORGE_API UAIComponent : public UActorComponent
@@ -34,6 +35,10 @@ public:
 	// Display Chat
 	UPROPERTY(BlueprintAssignable, Category="Events")
 	FOnSendMessage OnSendMessage;
+
+	// Voting
+	UPROPERTY(BlueprintAssignable, Category="Events")
+	FOnVote OnVote;
 
 	UFUNCTION(BlueprintCallable, Category="MyComponent")
 	void TriggerSendMessageEvent(const FString Message, const FString Reasoning) const;

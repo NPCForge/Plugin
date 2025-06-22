@@ -33,6 +33,7 @@ void UAIComponent::HandleDecision(const TSharedPtr<FJsonObject> &JsonObject)
 	{
 		const FString Target = JsonObject->GetStringField(TEXT("VoteFor"));
 		UE_LOG(LogTemp, Log, TEXT("%s vote for %s"), *UniqueName, *Target)
+		OnVote.Broadcast(*UniqueName, *Target);
 	} else
 	{
 		UE_LOG(LogTemp, Error, TEXT("Action not found"));
