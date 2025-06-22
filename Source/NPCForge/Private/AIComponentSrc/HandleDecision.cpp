@@ -18,11 +18,12 @@ void UAIComponent::HandleDecision(const TSharedPtr<FJsonObject> &JsonObject)
 	if (Action == TEXT("TalkTo"))
 	{
 		const FString Message = JsonObject->GetStringField(TEXT("Message"));
+		const FString Reasoning = JsonObject->GetStringField(TEXT("Reasoning"));
 
 		if (const FString Target = JsonObject->GetStringField(TEXT("TalkTo"));
 			Target.Contains("Everyone"))
 		{
-			TriggerSendMessageEvent(Message);
+			TriggerSendMessageEvent(Message, Reasoning);
 			bIsBusy = false;
 		} else
 		{

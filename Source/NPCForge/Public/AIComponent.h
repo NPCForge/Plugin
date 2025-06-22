@@ -2,7 +2,6 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "MessageManager.h"
 #include "WebSocketHandler.h"
 #include "SaveEntityState.h"
 #include "Kismet/GameplayStatics.h"
@@ -17,7 +16,7 @@
 
 #include "AIComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSendMessage, FString, Message);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSendMessage, FString, Message, FString, Reasoning);
 
 UCLASS(ClassGroup=(AI), meta=(BlueprintSpawnableComponent, DisplayName="NPCForge", ToolTip="Mark as NPC"))
 class NPCFORGE_API UAIComponent : public UActorComponent
@@ -37,7 +36,7 @@ public:
 	FOnSendMessage OnSendMessage;
 
 	UFUNCTION(BlueprintCallable, Category="MyComponent")
-	void TriggerSendMessageEvent(const FString Message) const;
+	void TriggerSendMessageEvent(const FString Message, const FString Reasoning) const;
 	
 	// Properties
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
