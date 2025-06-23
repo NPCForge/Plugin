@@ -79,11 +79,11 @@ void UAIComponent::OnWebsocketReady()
 }
 
 
-void UAIComponent::TriggerSendMessageEvent(const FString Message) const
+void UAIComponent::TriggerSendMessageEvent(const FString Message, const FString Reasoning) const
 {
 	if (OnSendMessage.IsBound())
 	{
-		OnSendMessage.Broadcast(Message);
+		OnSendMessage.Broadcast(Message, Reasoning);
 	}
 }
 
