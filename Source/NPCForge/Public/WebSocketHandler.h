@@ -4,64 +4,72 @@
 
 #include "CoreMinimal.h"
 
-#include "WebSocketsModule.h"
 #include "IWebSocket.h"
-#include "SaveEntityState.h"
 #include "Kismet/GameplayStatics.h"
+#include "SaveEntityState.h"
+#include "WebSocketsModule.h"
 
 #include "WebSocketHandler.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWebSocketMessageReceived, const FString&, Message);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnWebSocketMessageReceived,
+                                            const FString &, Message);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnWebSocketReady);
 
 UCLASS(Blueprintable)
-class NPCFORGE_API UWebSocketHandler : public UObject
-{
-	GENERATED_BODY()
+class NPCFORGE_API UWebSocketHandler : public UObject {
+  GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "WebSocket")
-	void Initialize();
+  UFUNCTION(BlueprintCallable, Category = "WebSocket")
+  void Initialize();
 
-	UFUNCTION(BlueprintCallable, Category = "WebSocket")
-	void Close();
-	
-	void SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody) const;
+  UFUNCTION(BlueprintCallable, Category = "WebSocket")
+  void Close();
 
-	void ConnectAPI() const;
-	void RegisterAPI() const;
-	void DisconnectAPI();
-	
-	void RegisterEntity(const FString& Checksum, const FString& ID) const;
-	void RegisterEntityOnApi(const FString &Name, const FString &Prompt, const FString &Checksum, const FString &Role) const;
-	
-	void SetToken(const FString& NewToken);
+  UFUNCTION(BlueprintCallable, Category = "WebSocket")
+  void Ping();
 
-	void SaveInstanceState() const;
-	void LoadInstanceState();
+  void SendMessage(const FString &Action,
+                   TSharedPtr<FJsonObject> JsonBody) const;
 
-	void HandleReceivedMessage(const FString &Message);
+  void ConnectAPI() const;
+  void RegisterAPI() const;
+  void DisconnectAPI();
 
-	bool IsEntityRegistered(const FString &Checksum) const;
+  void RegisterEntity(const FString &Checksum, const FString &ID) const;
+  void RegisterEntityOnApi(const FString &Name, const FString &Prompt,
+                           const FString &Checksum, const FString &Role) const;
 
-	TSet<FString> MessagesSent;
+  void SetToken(const FString &NewToken);
 
-	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
-	FOnWebSocketMessageReceived OnMessageReceived;
+  void SaveInstanceState() const;
+  void LoadInstanceState();
 
-	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
-	FOnWebSocketReady OnReady;
-	
-	bool bIsRegistered = false;
-	bool bIsConnected = false;
+  void HandleReceivedMessage(const FString &Message);
 
-	int ApiUserID = -1;
+  bool IsEntityRegistered(const FString &Checksum) const;
+
+  TSet<FString> MessagesSent;
+
+  UPROPERTY(BlueprintAssignable, Category = "WebSocket")
+  FOnWebSocketMessageReceived OnMessageReceived;
+
+  UPROPERTY(BlueprintAssignable, Category = "WebSocket")
+  FOnWebSocketReady OnReady;
+
+  bool bIsRegistered = false;
+  bool bIsConnected = false;
+
+  int ApiUserID = -1;
+
 private:
-	const FString ServerURL = TEXT("ws://127.0.0.1:3000/ws");
-	const FString ServerProtocol = TEXT("ws");
-	FString Token = TEXT("");
+  const FString ServerURL = TEXT("ws://127.0.0.1:3000/ws");
+  const FString ServerProtocol = TEXT("ws");
+  FString Token = TEXT("");
 
-	TSharedPtr<TMap<FString, FString>> RegisteredEntities = MakeShareable(new TMap<FString, FString>());
+  TSharedPtr<TMap<FString, FString>> RegisteredEntities =
+      MakeShareable(new TMap<FString, FString>());
 
-	TSharedPtr<IWebSocket> Socket = FWebSocketsModule::Get().CreateWebSocket(ServerURL, ServerProtocol);
+  TSharedPtr<IWebSocket> Socket =
+      FWebSocketsModule::Get().CreateWebSocket(ServerURL, ServerProtocol);
 };
