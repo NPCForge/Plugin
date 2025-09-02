@@ -194,12 +194,13 @@ void UWebSocketHandler::RegisterEntity(const FString& Checksum, const FString& I
 	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Registered entity %s on id : %s"), *Checksum, *ID);
 }
 
-void UWebSocketHandler::RegisterEntityOnApi(const FString &Name, const FString &Prompt, const FString &Checksum) const
+void UWebSocketHandler::RegisterEntityOnApi(const FString &Name, const FString &Prompt, const FString &Checksum, const FString &Role) const
 {
 	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
 	JsonBody->SetStringField("name", Name);
 	JsonBody->SetStringField("prompt", Prompt);
 	JsonBody->SetStringField("checksum", Checksum);
+	JsonBody->SetStringField("role", Role);
 	SendMessage("CreateEntity", JsonBody);
 }
 

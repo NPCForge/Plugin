@@ -2,12 +2,35 @@
 
 FString UAIComponent::ScanEnvironment()
 {
-	FString EnvironmentPrompt = "";
+	FString EnvironmentPrompt = "{";
 
+	EnvironmentPrompt += GetPhase();
 	// EnvironmentPrompt += ScanForNearbyEntities(50000, GetOwner()->GetActorLocation());
 
 	// UE_LOG(LogTemp, Log, TEXT("[UAIComponent::ScanEnvironment]: %s"), *EnvironmentPrompt);
-	return EnvironmentPrompt;
+	return EnvironmentPrompt + "}";
+}
+
+FString UAIComponent::GetPhase()
+{
+	// Need to remove this, just using to manually changing phase
+	
+	if (CountDecisions == 0)
+	{
+		CurrentPhase = TEXT("Discussion");
+	} else if (CountDecisions == 4)
+	{
+		CurrentPhase = TEXT("Voting");
+	} else if (CountDecisions == 5)
+	{
+		CurrentPhase = TEXT("Night");
+	} else if (CountDecisions == 6)
+	{
+		CurrentPhase = TEXT("None");
+	}
+	CountDecisions++;
+	// return FString::Printf(TEXT("\"phase\": \"%s\""), *GameMode->GetPhase());
+	return FString::Printf(TEXT("\"phase\": \"%s\""), *CurrentPhase);
 }
 
 FString UAIComponent::ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const

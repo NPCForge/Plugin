@@ -9,41 +9,33 @@ void UAIComponent::ParseChecksums(const FString& InputString, TArray<FString>& O
 	TrimmedString.ParseIntoArray(OutChecksums, TEXT(", "), true);
 }
 
-void UAIComponent::HandleDecision(const FString& Response)
+void UAIComponent::HandleDecision(const TSharedPtr<FJsonObject> &JsonObject)
 {
-	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleDecision]: %s"), *Response);
-	
-	FString TalkToLine;
-	FString MessageLine;
+	const FString Action = JsonObject->GetStringField(TEXT("Action"));
 
-	if (Response.Split(TEXT("TalkTo: "), nullptr, &TalkToLine))
+	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleDecision]: Action = %s"), *Action);
+
+	if (Action == TEXT("TalkTo"))
 	{
-		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleDecision]: Handle TalkTo Logic"));
+		const FString Message = JsonObject->GetStringField(TEXT("Message"));
+		const FString Reasoning = JsonObject->GetStringField(TEXT("Reasoning"));
 
-		if (TalkToLine.Split(TEXT("\nMessage: "), &TalkToLine, &MessageLine))
+		if (const FString Target = JsonObject->GetStringField(TEXT("TalkTo"));
+			Target.Contains("Everyone"))
 		{
-			const FString EntityChecksums = TalkToLine.TrimStartAndEnd();
-			const FString Message = MessageLine.TrimStartAndEnd();
-
-			TArray<FString> ChecksumsArray;
-			ParseChecksums(EntityChecksums, ChecksumsArray);
-
-			if (ChecksumsArray.Contains("Everyone"))
-			{
-				TriggerSendMessageEvent(Message);
-				bIsBusy = false;
-			} else
-			{
-				UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: Could not find entity receiver"));
-			}
-		}
-		else
+			TriggerSendMessageEvent(Message, Reasoning);
+			bIsBusy = false;
+		} else
 		{
-			UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: Could not find 'Message:' part"));
+			UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: Message is not for everyone"));
 		}
-	}
-	else
+	} else if (Action == TEXT("VoteFor"))
 	{
-		UE_LOG(LogTemp, Error, TEXT("[UAIComponent::HandleDecision]: Unable to find an entity name: %s"), *Response);
+		const FString Target = JsonObject->GetStringField(TEXT("VoteFor"));
+		UE_LOG(LogTemp, Log, TEXT("%s vote for %s"), *UniqueName, *Target)
+		OnVote.Broadcast(*UniqueName, *Target);
+	} else
+	{
+		UE_LOG(LogTemp, Error, TEXT("Action not found"));
 	}
 }

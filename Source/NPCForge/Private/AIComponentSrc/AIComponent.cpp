@@ -2,6 +2,7 @@
 
 UAIComponent::UAIComponent()
 {
+	GameMode = nullptr;
 	WebSocketHandler = nullptr;
 	PrimaryComponentTick.bCanEverTick = true;
 }
@@ -27,25 +28,62 @@ void UAIComponent::BeginPlay()
 			UE_LOG(LogTemp, Warning, TEXT("Not Found Game Instance"));
 		}
 	}
+
+	GameMode = Cast<AMyGameMode>(GetWorld()->GetAuthGameMode());
+}
+
+void UAIComponent::CheckGameRole()
+{
+	RoleCheckElapsed += 0.2f;
+	
+	if (AActor* Owner = GetOwner();
+		Owner && Owner->GetClass()->ImplementsInterface(UAIInterface::StaticClass()))
+	{
+		if (FString Role = IAIInterface::Execute_GetGameRole(Owner);
+			Role != "None")
+		{
+			CachedRole = Role;
+			UE_LOG(LogTemp, Warning, TEXT("Final Role: %s"), *Role);
+			GetWorld()->GetTimerManager().ClearTimer(RoleCheckTimerHandle);
+
+			const FString CombinedString = FString::Printf(TEXT("%s%s%d"), *UniqueName, *PersonalityPrompt, WebSocketHandler->ApiUserID);
+			EntityChecksum = FMD5::HashAnsiString(*CombinedString);
+	
+			if (!WebSocketHandler->IsEntityRegistered(EntityChecksum)) {
+				WebSocketHandler->RegisterEntityOnApi(UniqueName, PersonalityPrompt, EntityChecksum, CachedRole);
+			}
+			bIsWebsocketConnected = true;
+			
+			return;
+		}
+	}
+
+	if (RoleCheckElapsed >= 10.0f)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Timeout waiting for GetGameRole() != None"));
+		GetWorld()->GetTimerManager().ClearTimer(RoleCheckTimerHandle);
+	}
 }
 
 void UAIComponent::OnWebsocketReady()
 {
-	const FString CombinedString = FString::Printf(TEXT("%s%s%d"), *UniqueName, *PersonalityPrompt, WebSocketHandler->ApiUserID);
-	EntityChecksum = FMD5::HashAnsiString(*CombinedString);
+	RoleCheckElapsed = 0.0f;
 	
-	if (!WebSocketHandler->IsEntityRegistered(EntityChecksum)) {
-		WebSocketHandler->RegisterEntityOnApi(UniqueName, PersonalityPrompt, EntityChecksum);
-	}
-	bIsWebsocketConnected = true;
+	GetWorld()->GetTimerManager().SetTimer(
+		RoleCheckTimerHandle,
+		this,
+		&UAIComponent::CheckGameRole,
+		0.2f,
+		true
+	);
 }
 
 
-void UAIComponent::TriggerSendMessageEvent(const FString Message) const
+void UAIComponent::TriggerSendMessageEvent(const FString Message, const FString Reasoning) const
 {
 	if (OnSendMessage.IsBound())
 	{
-		OnSendMessage.Broadcast(Message);
+		OnSendMessage.Broadcast(Message, Reasoning);
 	}
 }
 
@@ -61,13 +99,16 @@ void UAIComponent::TickComponent(const float DeltaTime, const ELevelTick TickTyp
 	if (!GetOwner()) return;
 
 	TimeSinceLastDecision += DeltaTime;
-    
-	if (bIsWebsocketConnected && !bIsBusy && TimeSinceLastDecision >= DecisionInterval)
+	
+	if (bIsWebsocketConnected && !bIsBusy && TimeSinceLastDecision >= DecisionInterval && CachedRole != "None")
 	{
 		bIsBusy = true;
 		TimeSinceLastDecision = 0.0f;
 
 		const FString EnvironmentPrompt = ScanEnvironment();
+
+		UE_LOG(LogTemp, Log, TEXT("Env = %s"), *EnvironmentPrompt)
+		
 		MakeDecision(EnvironmentPrompt);
 	}
 
