@@ -20,11 +20,14 @@ class NPCFORGE_API UWebSocketHandler : public UObject
 	GENERATED_BODY()
 
 public:
-	UFUNCTION(BlueprintCallable, Category = "WebSocket")
-	void Initialize();
+        UFUNCTION(BlueprintCallable, Category = "WebSocket")
+        void Initialize();
 
-	UFUNCTION(BlueprintCallable, Category = "WebSocket")
-	void Close();
+        UFUNCTION(BlueprintCallable, Category = "WebSocket")
+        void Close();
+
+       UFUNCTION(BlueprintCallable, Category = "WebSocket")
+       void Ping();
 	
 	void SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody) const;
 

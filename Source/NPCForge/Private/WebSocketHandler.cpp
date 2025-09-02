@@ -217,16 +217,33 @@ void UWebSocketHandler::RegisterAPI() const
 
 void UWebSocketHandler::ConnectAPI() const
 {
-	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	JsonBody->SetStringField("identifier", "UserPlugin");
-	JsonBody->SetStringField("password", "password");
-	SendMessage("Connect", JsonBody);
+        const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+        JsonBody->SetStringField("identifier", "UserPlugin");
+        JsonBody->SetStringField("password", "password");
+        SendMessage("Connect", JsonBody);
+}
+
+
+void UWebSocketHandler::Ping()
+{
+       if (!Socket.IsValid())
+       {
+               return;
+       }
+
+       if (!Socket->IsConnected())
+       {
+               Socket->Connect();
+               return;
+       }
+
+       Socket->Send(TEXT("ping"));
 }
 
 
 void UWebSocketHandler::DisconnectAPI()
 {
-	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	SendMessage("Disconnect", JsonBody);
+        TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+        SendMessage("Disconnect", JsonBody);
 	SetToken("");
 }
