@@ -105,14 +105,14 @@ void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
 						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle CreateEntity Logic"));
 						RegisterEntity(JsonObject->GetStringField(TEXT("checksum")), JsonObject->GetStringField(TEXT("id")));
 					}
-					else if (Value == "Restart")
-					{
-							UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Restart Logic"));
-							Close();
-					} else
-					{
-							OnMessageReceived.Broadcast(Message);
-					}
+                                        else if (Value == "Restart")
+                                        {
+                                                       UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Restart Logic"));
+                                                       Restart();
+                                        } else
+                                        {
+                                                        OnMessageReceived.Broadcast(Message);
+                                        }
 				}
 			}
 		}
@@ -231,13 +231,24 @@ void UWebSocketHandler::ConnectAPI() const
 
 void UWebSocketHandler::DisconnectAPI()
 {
-	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	SendMessage("Disconnect", JsonBody);
-	SetToken("");
+        TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+        SendMessage("Disconnect", JsonBody);
+        SetToken("");
 }
 
 void UWebSocketHandler::Restart()
 {
-	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
-	SendMessage("Restart", JsonBody);
+        UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::Restart]: Restarting connection"));
+
+        // Close existing connection and reset state
+        Close();
+        RegisteredEntities->Empty();
+        MessagesSent.Empty();
+
+        // Recreate and initialize the socket
+        Socket = FWebSocketsModule::Get().CreateWebSocket(ServerURL, ServerProtocol);
+        Initialize();
+
+        // Reconnect to the API
+        ConnectAPI();
 }
