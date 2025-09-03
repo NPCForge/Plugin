@@ -25,6 +25,9 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "WebSocket")
 	void Close();
+
+	UFUNCTION(BlueprintCallable, Category = "WebSocket")
+	void Restart();
 	
 	void SendMessage(const FString& Action, TSharedPtr<FJsonObject> JsonBody) const;
 

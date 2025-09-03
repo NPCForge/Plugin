@@ -104,9 +104,14 @@ void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
 					{
 						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle CreateEntity Logic"));
 						RegisterEntity(JsonObject->GetStringField(TEXT("checksum")), JsonObject->GetStringField(TEXT("id")));
+					}
+					else if (Value == "Restart")
+					{
+							UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Restart Logic"));
+							Close();
 					} else
 					{
-						OnMessageReceived.Broadcast(Message);
+							OnMessageReceived.Broadcast(Message);
 					}
 				}
 			}
@@ -229,4 +234,10 @@ void UWebSocketHandler::DisconnectAPI()
 	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
 	SendMessage("Disconnect", JsonBody);
 	SetToken("");
+}
+
+void UWebSocketHandler::Restart()
+{
+	TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+	SendMessage("Restart", JsonBody);
 }
