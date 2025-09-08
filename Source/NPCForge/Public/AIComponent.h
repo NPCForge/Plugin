@@ -97,8 +97,4 @@ private:
 	bool bIsWebsocketConnected = false;
 
 	bool bIsBusy = false;
-
-
-	int CountDecisions = 0;
-	FString CurrentPhase;
 };

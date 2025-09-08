@@ -13,34 +13,17 @@ FString UAIComponent::ScanEnvironment()
 
 FString UAIComponent::GetPhase()
 {
-	// Need to remove this, just using to manually changing phase
-	
-	if (CountDecisions == 0)
-	{
-		CurrentPhase = TEXT("Discussion");
-	} else if (CountDecisions == 4)
-	{
-		CurrentPhase = TEXT("Voting");
-	} else if (CountDecisions == 5)
-	{
-		CurrentPhase = TEXT("Night");
-	} else if (CountDecisions == 6)
-	{
-		CurrentPhase = TEXT("None");
-	}
-	CountDecisions++;
-	// return FString::Printf(TEXT("\"phase\": \"%s\""), *GameMode->GetPhase());
-	return FString::Printf(TEXT("\"phase\": \"%s\""), *CurrentPhase);
+	return FString::Printf(TEXT("\"phase\": \"%s\""), *GameMode->GetPhase());
 }
 
 FString UAIComponent::ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const
 {
 	TArray<AActor*> OverlappingActors;
-	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes; // Object type to detect
-	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn)); // Should maybe change, lets see what object type an entity can be?
+	TArray<TEnumAsByte<EObjectTypeQuery>> ObjectTypes;
+	ObjectTypes.Add(UEngineTypes::ConvertToObjectType(ECollisionChannel::ECC_Pawn));
 
-	TArray<AActor*> IgnoredActors; // Actors to ignore (optional)
-	IgnoredActors.Add(GetOwner()); // Ignore actor with component
+	TArray<AActor*> IgnoredActors;
+	IgnoredActors.Add(GetOwner());
 
 	// Do sphere overlap
 	UKismetSystemLibrary::SphereOverlapActors(
