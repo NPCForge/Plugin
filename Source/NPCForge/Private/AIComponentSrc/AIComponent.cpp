@@ -49,6 +49,7 @@ void UAIComponent::CheckGameRole() {
       if (!WebSocketHandler->IsEntityRegistered(EntityChecksum)) {
         WebSocketHandler->RegisterEntityOnApi(UniqueName, PersonalityPrompt,
                                               EntityChecksum, CachedRole);
+        UE_LOG(LogTemp, Log, TEXT("Entity registered with role: %s"), *Role);
       }
       bIsWebsocketConnected = true;
 
@@ -94,7 +95,7 @@ void UAIComponent::TickComponent(
     bIsBusy = false;
     LastKnownPhase = CurrentPhase;
   }
-
+  
   TimeSinceLastDecision += DeltaTime;
 
   if (bIsWebsocketConnected && !bIsBusy &&
@@ -104,8 +105,11 @@ void UAIComponent::TickComponent(
 
     const FString EnvironmentPrompt = ScanEnvironment();
 
-    if (CurrentPhase == TEXT("Vote") && bHasVotedInCurrentPhase) {
-      bIsBusy = false;
+    if (CurrentPhase == TEXT("Voting") && bHasVotedInCurrentPhase) {
+      return;
+    }
+    if (CurrentPhase == TEXT("Night") && CachedRole != "Werewolf")
+    {
       return;
     }
 
