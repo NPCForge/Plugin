@@ -1,100 +1,109 @@
 ﻿#pragma once
 
-#include "CoreMinimal.h"
-#include "Components/ActorComponent.h"
-#include "WebSocketHandler.h"
-#include "SaveEntityState.h"
-#include "Kismet/GameplayStatics.h"
-#include "JsonObjectConverter.h"
 #include "AIController.h"
+#include "AIInterface.h"
+#include "Components/ActorComponent.h"
+#include "CoreMinimal.h"
 #include "Dom/JsonObject.h"
+#include "JsonObjectConverter.h"
+#include "Kismet/GameplayStatics.h"
+#include "MyGameMode.h"
+#include "NPCForgeGameInstance.h"
+#include "SaveEntityState.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
-#include "NPCForgeGameInstance.h"
-#include "AIInterface.h"
-#include "MyGameMode.h"
+#include "WebSocketHandler.h"
 
 #include "AIComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSendMessage, FString, Message, FString, Reasoning);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnVote, FString, Voter, FString, VoteTarget);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSendMessage, FString, Message,
+                                             FString, Reasoning);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnVote, FString, Voter, FString,
+                                             VoteTarget);
 
-UCLASS(ClassGroup=(AI), meta=(BlueprintSpawnableComponent, DisplayName="NPCForge", ToolTip="Mark as NPC"))
-class NPCFORGE_API UAIComponent : public UActorComponent
-{
-	GENERATED_BODY()
+UCLASS(ClassGroup = (AI),
+       meta = (BlueprintSpawnableComponent, DisplayName = "NPCForge",
+               ToolTip = "Mark as NPC"))
+class NPCFORGE_API UAIComponent : public UActorComponent {
+  GENERATED_BODY()
 
 public:
-	// Base Class
-	UAIComponent();
-	
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
-	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
+  // Base Class
+  UAIComponent();
 
-	// Display Chat
-	UPROPERTY(BlueprintAssignable, Category="Events")
-	FOnSendMessage OnSendMessage;
+  virtual void
+  TickComponent(float DeltaTime, ELevelTick TickType,
+                FActorComponentTickFunction *ThisTickFunction) override;
 
-	// Voting
-	UPROPERTY(BlueprintAssignable, Category="Events")
-	FOnVote OnVote;
+  virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 
-	UFUNCTION(BlueprintCallable, Category="MyComponent")
-	void TriggerSendMessageEvent(const FString Message, const FString Reasoning) const;
-	
-	// Properties
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString PersonalityPrompt;
+  // Display Chat
+  UPROPERTY(BlueprintAssignable, Category = "Events")
+  FOnSendMessage OnSendMessage;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	FString UniqueName;
+  // Voting
+  UPROPERTY(BlueprintAssignable, Category = "Events")
+  FOnVote OnVote;
 
-	FString EntityChecksum;
+  UFUNCTION(BlueprintCallable, Category = "MyComponent")
+  void TriggerSendMessageEvent(const FString Message,
+                               const FString Reasoning) const;
 
+  // Properties
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  FString PersonalityPrompt;
 
-	// Environment Discovering
-	FString ScanEnvironment();
+  UPROPERTY(EditAnywhere, BlueprintReadWrite)
+  FString UniqueName;
 
-	FString GetPhase();
+  FString EntityChecksum;
 
-	FString ScanForNearbyEntities(const float Radius, const FVector &ScanLocation) const;
+  // Environment Discovering
+  FString ScanEnvironment();
 
+  FString GetPhase();
 
-	// WebSocket Communication
-	UFUNCTION()
-	void HandleWebSocketMessage(const FString& JsonString);
+  FString ScanForNearbyEntities(const float Radius,
+                                const FVector &ScanLocation) const;
 
-	UFUNCTION()
-	void OnWebsocketReady();
+  // WebSocket Communication
+  UFUNCTION()
+  void HandleWebSocketMessage(const FString &JsonString);
 
-	void MakeDecision(const FString& Prompt) const;
-	void HandleDecision(const TSharedPtr<FJsonObject> &JsonObject);
-	
-	static void ParseChecksums(const FString& InputString, TArray<FString>& OutChecksums);
+  UFUNCTION()
+  void OnWebsocketReady();
 
-	void CheckGameRole();
-	
+  void MakeDecision(const FString &Prompt) const;
+  void HandleDecision(const TSharedPtr<FJsonObject> &JsonObject);
+
+  static void ParseChecksums(const FString &InputString,
+                             TArray<FString> &OutChecksums);
+
+  void CheckGameRole();
+
 protected:
-	// Base Class
-	virtual void BeginPlay() override;
+  // Base Class
+  virtual void BeginPlay() override;
 
 private:
-	float TimeSinceLastDecision = 0.0f;
-	float DecisionInterval = 5.0f;
+  float TimeSinceLastDecision = 0.0f;
+  float DecisionInterval = 5.0f;
 
-	FTimerHandle RoleCheckTimerHandle;
-	float RoleCheckElapsed = 0.0f;
-	FString CachedRole = "None";
+  FTimerHandle RoleCheckTimerHandle;
+  float RoleCheckElapsed = 0.0f;
+  FString CachedRole = "None";
 
-	AMyGameMode *GameMode;
+  AMyGameMode *GameMode;
 
-	FTimerHandle ResponseTimerHandle;
-	
-	// Attributes
-	UWebSocketHandler* WebSocketHandler;
-	// bool bIsRegistered = false;
-	bool bIsWebsocketConnected = false;
+  FTimerHandle ResponseTimerHandle;
 
-	bool bIsBusy = false;
+  // Attributes
+  UWebSocketHandler *WebSocketHandler;
+  // bool bIsRegistered = false;
+  bool bIsWebsocketConnected = false;
+
+  bool bIsBusy = false;
+
+  bool bHasVotedInCurrentPhase = false;
+  FString LastKnownPhase;
 };
