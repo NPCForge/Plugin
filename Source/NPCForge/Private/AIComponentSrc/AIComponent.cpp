@@ -87,8 +87,10 @@ void UAIComponent::OnWebsocketReady()
 
 void UAIComponent::TriggerSendMessageEvent(const FString Message, const FString Reasoning) const
 {
+	UE_LOG(LogTemp, Error, TEXT("Broadcasting message: %s"), *Message);
 	if (OnSendMessage.IsBound())
 	{
+		UE_LOG(LogTemp, Error, TEXT("Sending: %s"), *Message);
 		OnSendMessage.Broadcast(Message, Reasoning);
 	}
 }
@@ -98,24 +100,43 @@ void UAIComponent::EndPlay(const EEndPlayReason::Type EndPlayReason)
 	Super::EndPlay(EndPlayReason);
 }
 
-void UAIComponent::TickComponent(const float DeltaTime, const ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
+void UAIComponent::TickComponent(
+	const float DeltaTime, const ELevelTick TickType,
+	FActorComponentTickFunction *ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	
-	if (!GetOwner()) return;
 
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *UniqueName);
+
+	if (!GetOwner())
+		return;
+
+	FString CurrentPhase = GameMode ? GameMode->GetPhase() : FString();
+	if (CurrentPhase != LastKnownPhase) {
+		UE_LOG(LogTemp, Log, TEXT("New Phase = %s"), *CurrentPhase)
+		bHasVotedInCurrentPhase = false;
+		bIsBusy = false;
+		LastKnownPhase = CurrentPhase;
+	}
+  
 	TimeSinceLastDecision += DeltaTime;
-	
-	if (bIsWebsocketConnected && !bIsBusy && TimeSinceLastDecision >= DecisionInterval && CachedRole != "None")
-	{
+
+	if (bIsWebsocketConnected && !bIsBusy &&
+		TimeSinceLastDecision >= DecisionInterval && CachedRole != "None") {
 		bIsBusy = true;
 		TimeSinceLastDecision = 0.0f;
 
 		const FString EnvironmentPrompt = ScanEnvironment();
 
+		if (CurrentPhase == TEXT("Voting") && bHasVotedInCurrentPhase) {
+			return;
+		}
+		if (CurrentPhase == TEXT("Night") && CachedRole != "Werewolf")
+		{
+			return;
+		}
+
 		UE_LOG(LogTemp, Log, TEXT("Env = %s"), *EnvironmentPrompt)
-		
+
 		MakeDecision(EnvironmentPrompt);
 	}
-
 }

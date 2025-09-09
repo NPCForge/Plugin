@@ -23,11 +23,11 @@ void UAIComponent::HandleDecision(const TSharedPtr<FJsonObject> &JsonObject) {
         Target.Contains("Everyone")) {
       TriggerSendMessageEvent(Message, Reasoning);
       bIsBusy = false;
-    } else {
-      UE_LOG(
-          LogTemp, Error,
-          TEXT("[UAIComponent::HandleDecision]: Message is not for everyone"));
-    }
+        } else {
+          UE_LOG(
+              LogTemp, Error,
+              TEXT("[UAIComponent::HandleDecision]: Message is not for everyone"));
+        }
   } else if (Action == TEXT("VoteFor")) {
     const FString Target = JsonObject->GetStringField(TEXT("VoteFor"));
     UE_LOG(LogTemp, Log, TEXT("%s vote for %s"), *UniqueName, *Target)
