@@ -87,10 +87,10 @@ void UAIComponent::OnWebsocketReady()
 
 void UAIComponent::TriggerSendMessageEvent(const FString Message, const FString Reasoning) const
 {
-	UE_LOG(LogTemp, Error, TEXT("Broadcasting message: %s"), *Message);
+	// UE_LOG(LogTemp, Error, TEXT("Broadcasting message: %s"), *Message);
 	if (OnSendMessage.IsBound())
 	{
-		UE_LOG(LogTemp, Error, TEXT("Sending: %s"), *Message);
+		// UE_LOG(LogTemp, Error, TEXT("Sending: %s"), *Message);
 		OnSendMessage.Broadcast(Message, Reasoning);
 	}
 }
@@ -105,14 +105,11 @@ void UAIComponent::TickComponent(
 	FActorComponentTickFunction *ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	UE_LOG(LogTemp, Warning, TEXT("%s"), *UniqueName);
-
 	if (!GetOwner())
 		return;
 
 	FString CurrentPhase = GameMode ? GameMode->GetPhase() : FString();
 	if (CurrentPhase != LastKnownPhase) {
-		UE_LOG(LogTemp, Log, TEXT("New Phase = %s"), *CurrentPhase)
 		bHasVotedInCurrentPhase = false;
 		bIsBusy = false;
 		LastKnownPhase = CurrentPhase;
@@ -134,9 +131,7 @@ void UAIComponent::TickComponent(
 		{
 			return;
 		}
-
-		UE_LOG(LogTemp, Log, TEXT("Env = %s"), *EnvironmentPrompt)
-
+		
 		MakeDecision(EnvironmentPrompt);
 	}
 }
