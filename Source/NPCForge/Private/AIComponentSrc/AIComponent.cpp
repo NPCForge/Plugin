@@ -67,18 +67,18 @@ void UAIComponent::CheckGameRole()
 
 void UAIComponent::OnWebsocketReady()
 {
-        RoleCheckElapsed = 0.0f;
-        bIsWebsocketConnected = false;
-        bIsBusy = false;
-        TimeSinceLastDecision = 0.0f;
+    RoleCheckElapsed = 0.0f;
+    bIsWebsocketConnected = false;
+    bIsBusy = false;
+    TimeSinceLastDecision = 0.0f;
 
-        GetWorld()->GetTimerManager().SetTimer(
-                RoleCheckTimerHandle,
-                this,
-                &UAIComponent::CheckGameRole,
-                0.2f,
-                true
-        );
+    GetWorld()->GetTimerManager().SetTimer(
+            RoleCheckTimerHandle,
+            this,
+            &UAIComponent::CheckGameRole,
+            0.2f,
+            true
+    );
 }
 
 

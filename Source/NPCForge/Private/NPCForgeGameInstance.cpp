@@ -26,6 +26,17 @@ UWebSocketHandler* UNPCForgeGameInstance::GetWebSocketHandler()
 	return WebSocketHandlerInstance;
 }
 
+void UNPCForgeGameInstance::ResetGameInstance()
+{
+	if (WebSocketHandlerInstance)
+	{
+		WebSocketHandlerInstance->SaveInstanceState();
+		WebSocketHandlerInstance->Close();
+		WebSocketHandlerInstance->RemoveFromRoot();
+		WebSocketHandlerInstance = nullptr;
+	}
+}
+
 void UNPCForgeGameInstance::Shutdown()
 {
 	Super::Shutdown();

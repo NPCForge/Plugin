@@ -19,6 +19,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	UWebSocketHandler* GetWebSocketHandler();
 
+	UFUNCTION(BlueprintCallable)
+	void ResetGameInstance();
+
 	virtual void Shutdown() override;
 
 private:
