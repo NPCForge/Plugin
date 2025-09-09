@@ -39,8 +39,11 @@ void UAIComponent::CheckGameRole()
 	if (AActor* Owner = GetOwner();
 		Owner && Owner->GetClass()->ImplementsInterface(UAIInterface::StaticClass()))
 	{
-		if (FString Role = IAIInterface::Execute_GetGameRole(Owner);
-			Role != "None")
+		FString Role = IAIInterface::Execute_GetGameRole(Owner);
+
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *Role);
+		
+		if (Role != "None")
 		{
 			CachedRole = Role;
 			UE_LOG(LogTemp, Warning, TEXT("Final Role: %s"), *Role);
