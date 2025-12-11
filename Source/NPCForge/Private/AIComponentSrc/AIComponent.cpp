@@ -163,7 +163,13 @@ void UAIComponent::TickComponent(
 		if (CurrentPhase == TEXT("Voting") && bHasVotedInCurrentPhase) {
 			return;
 		}
-		if (CurrentPhase == TEXT("Night") && CachedRole != "Werewolf" && bHasVotedInCurrentPhase)
+		
+		if (CurrentPhase == TEXT("Night") && CachedRole == "Werewolf" && bHasVotedInCurrentPhase)
+		{
+			return;
+		}
+		
+		if (CurrentPhase == TEXT("Night") && CachedRole != "Werewolf")
 		{
 			return;
 		}
