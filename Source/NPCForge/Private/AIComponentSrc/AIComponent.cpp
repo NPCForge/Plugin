@@ -110,10 +110,13 @@ void UAIComponent::TickComponent(
 	if (!GetOwner())
 		return;
 
+	// UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::TickComponent]: %s ticked"), *UniqueName);
 	if (AActor* Owner = GetOwner();
 		Owner && Owner->GetClass()->ImplementsInterface(UAIInterface::StaticClass()))
 	{
 		bool bIsCurrentlyAlive = IAIInterface::Execute_IsAlive(Owner);
+		
+		// UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::TickComponent]: %s is alive: %d"), *UniqueName, bIsCurrentlyAlive);
 
 		if (bWasAlive && !bIsCurrentlyAlive)
 		{
@@ -136,6 +139,8 @@ void UAIComponent::TickComponent(
 			return;
 		}
 	}
+	
+	// UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::TickComponent]: %s is alive"), *UniqueName);
 
 	FString CurrentPhase = GameMode ? GameMode->GetPhase() : FString();
 	if (CurrentPhase != LastKnownPhase) {
@@ -150,13 +155,15 @@ void UAIComponent::TickComponent(
 		TimeSinceLastDecision >= DecisionInterval && CachedRole != "None") {
 		bIsBusy = true;
 		TimeSinceLastDecision = 0.0f;
+		
+		// UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::TickComponent]: %s is making a decision"), *UniqueName);
 
 		const FString EnvironmentPrompt = ScanEnvironment();
 
 		if (CurrentPhase == TEXT("Voting") && bHasVotedInCurrentPhase) {
 			return;
 		}
-		if (CurrentPhase == TEXT("Night") && CachedRole != "Werewolf")
+		if (CurrentPhase == TEXT("Night") && CachedRole != "Werewolf" && bHasVotedInCurrentPhase)
 		{
 			return;
 		}
