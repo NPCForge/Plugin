@@ -110,13 +110,40 @@ void UAIComponent::TickComponent(
 	if (!GetOwner())
 		return;
 
+	if (AActor* Owner = GetOwner();
+		Owner && Owner->GetClass()->ImplementsInterface(UAIInterface::StaticClass()))
+	{
+		bool bIsCurrentlyAlive = IAIInterface::Execute_IsAlive(Owner);
+
+		if (bWasAlive && !bIsCurrentlyAlive)
+		{
+			// L'IA vient de mourir
+			UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::TickComponent]: %s has died, notifying API and stopping communication"), *UniqueName);
+
+			if (WebSocketHandler && !EntityChecksum.IsEmpty())
+			{
+				WebSocketHandler->NotifyEntityDeath(EntityChecksum);
+			}
+
+			bIsWebsocketConnected = false;
+			bWasAlive = false;
+			return;
+		}
+
+		// Si l'IA est morte, arrêter toute communication
+		if (!bIsCurrentlyAlive)
+		{
+			return;
+		}
+	}
+
 	FString CurrentPhase = GameMode ? GameMode->GetPhase() : FString();
 	if (CurrentPhase != LastKnownPhase) {
 		bHasVotedInCurrentPhase = false;
 		bIsBusy = false;
 		LastKnownPhase = CurrentPhase;
 	}
-  
+
 	TimeSinceLastDecision += DeltaTime;
 
 	if (bIsWebsocketConnected && !bIsBusy &&
@@ -133,7 +160,7 @@ void UAIComponent::TickComponent(
 		{
 			return;
 		}
-		
+
 		MakeDecision(EnvironmentPrompt);
 	}
 }
