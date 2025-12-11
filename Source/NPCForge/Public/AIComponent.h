@@ -95,6 +95,7 @@ private:
   AMyGameMode *GameMode;
 
   FTimerHandle ResponseTimerHandle;
+  FTimerHandle DelayedMessageTimerHandle;
 
   // Attributes
   UWebSocketHandler *WebSocketHandler;
