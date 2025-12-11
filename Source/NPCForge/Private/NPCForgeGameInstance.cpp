@@ -10,19 +10,10 @@ UWebSocketHandler* UNPCForgeGameInstance::GetWebSocketHandler()
 		WebSocketHandlerInstance = NewObject<UWebSocketHandler>(this);
 		WebSocketHandlerInstance->AddToRoot();
 		WebSocketHandlerInstance->Initialize();
-		
-		WebSocketHandlerInstance->LoadInstanceState();
 
-		if (!WebSocketHandlerInstance->bIsRegistered)
-		{
-			WebSocketHandlerInstance->RegisterAPI();
-		} else
-		{
-			WebSocketHandlerInstance->ConnectAPI();
-			WebSocketHandlerInstance->bIsRegistered = true;
-		}
+		WebSocketHandlerInstance->RegisterAPI();
 	}
-	
+
 	return WebSocketHandlerInstance;
 }
 
@@ -30,7 +21,6 @@ void UNPCForgeGameInstance::ResetGameInstance()
 {
 	if (WebSocketHandlerInstance)
 	{
-		WebSocketHandlerInstance->SaveInstanceState();
 		WebSocketHandlerInstance->Close();
 		WebSocketHandlerInstance->RemoveFromRoot();
 		WebSocketHandlerInstance = nullptr;
@@ -40,10 +30,9 @@ void UNPCForgeGameInstance::ResetGameInstance()
 void UNPCForgeGameInstance::Shutdown()
 {
 	Super::Shutdown();
-	
+
 	if (WebSocketHandlerInstance)
 	{
-		WebSocketHandlerInstance->SaveInstanceState();
 		WebSocketHandlerInstance->Close();
 		WebSocketHandlerInstance->RemoveFromRoot();
 		WebSocketHandlerInstance = nullptr;

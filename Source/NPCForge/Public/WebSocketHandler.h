@@ -6,8 +6,6 @@
 
 #include "WebSocketsModule.h"
 #include "IWebSocket.h"
-#include "SaveEntityState.h"
-#include "Kismet/GameplayStatics.h"
 
 #include "WebSocketHandler.generated.h"
 
@@ -40,9 +38,6 @@ public:
 	
 	void SetToken(const FString& NewToken);
 
-	void SaveInstanceState() const;
-	void LoadInstanceState();
-
 	void HandleReceivedMessage(const FString &Message);
 
 	bool IsEntityRegistered(const FString &Checksum) const;
@@ -54,8 +49,7 @@ public:
 
 	UPROPERTY(BlueprintAssignable, Category = "WebSocket")
 	FOnWebSocketReady OnReady;
-	
-	bool bIsRegistered = false;
+
 	bool bIsConnected = false;
 
 	int ApiUserID = -1;

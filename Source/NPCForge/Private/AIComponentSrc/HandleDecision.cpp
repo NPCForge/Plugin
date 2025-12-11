@@ -21,8 +21,17 @@ void UAIComponent::HandleDecision(const TSharedPtr<FJsonObject> &JsonObject) {
 
     if (const FString Target = JsonObject->GetStringField(TEXT("TalkTo"));
         Target.Contains("Everyone")) {
-      TriggerSendMessageEvent(Message, Reasoning);
-      bIsBusy = false;
+      const float RandomDelay = FMath::RandRange(0.5f, 3.5f);
+
+      GetWorld()->GetTimerManager().SetTimer(
+        DelayedMessageTimerHandle,
+        [this, Message, Reasoning]() {
+          TriggerSendMessageEvent(Message, Reasoning);
+          bIsBusy = false;
+        },
+        RandomDelay,
+        false
+      );
         } else {
           UE_LOG(
               LogTemp, Error,
@@ -33,7 +42,9 @@ void UAIComponent::HandleDecision(const TSharedPtr<FJsonObject> &JsonObject) {
     UE_LOG(LogTemp, Log, TEXT("%s vote for %s"), *UniqueName, *Target)
     OnVote.Broadcast(*UniqueName, *Target);
     bHasVotedInCurrentPhase = true;
+    bIsBusy = false;
   } else {
     UE_LOG(LogTemp, Error, TEXT("Action not found"));
+    bIsBusy = false;
   }
 }

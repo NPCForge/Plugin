@@ -41,19 +41,22 @@ void UAIComponent::CheckGameRole()
 	{
 		FString Role = IAIInterface::Execute_GetGameRole(Owner);
 
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *Role);
+		UE_LOG(LogTemp, Warning, TEXT("[CheckGameRole] %s got role: %s"), *UniqueName, *Role);
 		
 		if (Role != "None")
 		{
 			CachedRole = Role;
-			UE_LOG(LogTemp, Warning, TEXT("Final Role: %s"), *Role);
+			UE_LOG(LogTemp, Warning, TEXT("[CheckGameRole] %s - Final Role cached: %s"), *UniqueName, *Role);
 			GetWorld()->GetTimerManager().ClearTimer(RoleCheckTimerHandle);
 
 			const FString CombinedString = FString::Printf(TEXT("%s%s%d"), *UniqueName, *PersonalityPrompt, WebSocketHandler->ApiUserID);
 			EntityChecksum = FMD5::HashAnsiString(*CombinedString);
-	
+
 			if (!WebSocketHandler->IsEntityRegistered(EntityChecksum)) {
+				UE_LOG(LogTemp, Warning, TEXT("[CheckGameRole] %s - Registering on API with role: %s"), *UniqueName, *CachedRole);
 				WebSocketHandler->RegisterEntityOnApi(UniqueName, PersonalityPrompt, EntityChecksum, CachedRole);
+			} else {
+				UE_LOG(LogTemp, Warning, TEXT("[CheckGameRole] %s - Already registered (checksum: %s)"), *UniqueName, *EntityChecksum);
 			}
 			bIsWebsocketConnected = true;
 			
@@ -73,7 +76,6 @@ void UAIComponent::OnWebsocketReady()
     RoleCheckElapsed = 0.0f;
     bIsWebsocketConnected = false;
     bIsBusy = false;
-    TimeSinceLastDecision = 0.0f;
 
     GetWorld()->GetTimerManager().SetTimer(
             RoleCheckTimerHandle,
