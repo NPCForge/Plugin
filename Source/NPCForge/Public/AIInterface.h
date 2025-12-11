@@ -23,4 +23,7 @@ class NPCFORGE_API IAIInterface
 public:
 	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AI")
 	FString GetGameRole();
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "AI")
+	bool IsAlive();
 };

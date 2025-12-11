@@ -106,4 +106,5 @@ private:
 
   bool bHasVotedInCurrentPhase = false;
   FString LastKnownPhase;
+  bool bWasAlive = true;
 };

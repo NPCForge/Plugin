@@ -179,6 +179,20 @@ void UWebSocketHandler::RegisterEntityOnApi(const FString &Name, const FString &
 	SendMessage("CreateEntity", JsonBody);
 }
 
+void UWebSocketHandler::NotifyEntityDeath(const FString& Checksum) const
+{
+	if (!IsEntityRegistered(Checksum))
+	{
+		UE_LOG(LogTemp, Warning, TEXT("[UWebSocketHandler::NotifyEntityDeath]: Entity not registered: %s"), *Checksum);
+		return;
+	}
+
+	const TSharedPtr<FJsonObject> JsonBody = MakeShareable(new FJsonObject());
+	JsonBody->SetStringField("checksum", Checksum);
+	SendMessage("EntityDied", JsonBody);
+	UE_LOG(LogTemp, Log, TEXT("[UWebSocketHandler::NotifyEntityDeath]: Notified death for entity: %s"), *Checksum);
+}
+
 
 void UWebSocketHandler::RegisterAPI() const
 {
