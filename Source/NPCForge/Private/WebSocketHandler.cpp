@@ -59,7 +59,6 @@ void UWebSocketHandler::HandleReceivedMessage(const FString &Message)
 						UE_LOG(LogTemp, Log, TEXT("[UAIComponent::HandleWebSocketMessage]: Handle Register Logic"));
 						SetToken(JsonObject->GetStringField(TEXT("token")));
 						ApiUserID = JsonObject->GetNumberField(TEXT("id"));
-						bIsRegistered = true;
 					}
 					else if (Value == "Connect")
 					{
@@ -162,31 +161,6 @@ void UWebSocketHandler::SetToken(const FString& NewToken)
 	}
 	else
 		bIsConnected = false;
-}
-
-void UWebSocketHandler::SaveInstanceState() const
-{
-	USaveEntityState* SaveGameInstance = Cast<USaveEntityState>(UGameplayStatics::CreateSaveGameObject(USaveEntityState::StaticClass()));
-
-	SaveGameInstance->bIsRegistered = bIsRegistered;
-	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::SaveEntityState]: bIsRegistered value: %s"), bIsRegistered ? TEXT("true") : TEXT("false"));
-
-	if (UGameplayStatics::SaveGameToSlot(SaveGameInstance, "GameInstance", 0))
-	{
-		UE_LOG(LogTemp, Log, TEXT("[UAIComponent::SaveEntityState]: Game saved successfully on slot: GameInstance"));
-	}
-}
-
-void UWebSocketHandler::LoadInstanceState()
-{
-	UE_LOG(LogTemp, Log, TEXT("[UAIComponent::LoadEntityState]: Try loading data for slot = GameInstance"));
-	if (UGameplayStatics::DoesSaveGameExist("GameInstance", 0))
-	{
-		if (const USaveEntityState* LoadedGame = Cast<USaveEntityState>(UGameplayStatics::LoadGameFromSlot("GameInstance", 0)))
-		{
-			bIsRegistered = LoadedGame->bIsRegistered;
-		}
-	}
 }
 
 void UWebSocketHandler::RegisterEntity(const FString& Checksum, const FString& ID) const

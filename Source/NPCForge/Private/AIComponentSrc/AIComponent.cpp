@@ -73,7 +73,6 @@ void UAIComponent::OnWebsocketReady()
     RoleCheckElapsed = 0.0f;
     bIsWebsocketConnected = false;
     bIsBusy = false;
-    TimeSinceLastDecision = 0.0f;
 
     GetWorld()->GetTimerManager().SetTimer(
             RoleCheckTimerHandle,

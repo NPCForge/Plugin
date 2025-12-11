@@ -9,7 +9,6 @@
 #include "Kismet/GameplayStatics.h"
 #include "MyGameMode.h"
 #include "NPCForgeGameInstance.h"
-#include "SaveEntityState.h"
 #include "Serialization/JsonReader.h"
 #include "Serialization/JsonSerializer.h"
 #include "WebSocketHandler.h"
@@ -87,7 +86,7 @@ protected:
 
 private:
   float TimeSinceLastDecision = 0.0f;
-  float DecisionInterval = 5.0f;
+  float DecisionInterval = 10.0f;
 
   FTimerHandle RoleCheckTimerHandle;
   float RoleCheckElapsed = 0.0f;
