@@ -110,30 +110,70 @@ void UAIComponent::TickComponent(
 	if (!GetOwner())
 		return;
 
+	// UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::TickComponent]: %s ticked"), *UniqueName);
+	if (AActor* Owner = GetOwner();
+		Owner && Owner->GetClass()->ImplementsInterface(UAIInterface::StaticClass()))
+	{
+		bool bIsCurrentlyAlive = IAIInterface::Execute_IsAlive(Owner);
+		
+		// UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::TickComponent]: %s is alive: %d"), *UniqueName, bIsCurrentlyAlive);
+
+		if (bWasAlive && !bIsCurrentlyAlive)
+		{
+			// L'IA vient de mourir
+			UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::TickComponent]: %s has died, notifying API and stopping communication"), *UniqueName);
+
+			if (WebSocketHandler && !EntityChecksum.IsEmpty())
+			{
+				WebSocketHandler->NotifyEntityDeath(EntityChecksum);
+			}
+
+			bIsWebsocketConnected = false;
+			bWasAlive = false;
+			return;
+		}
+
+		// Si l'IA est morte, arrêter toute communication
+		if (!bIsCurrentlyAlive)
+		{
+			return;
+		}
+	}
+	
+	// UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::TickComponent]: %s is alive"), *UniqueName);
+
 	FString CurrentPhase = GameMode ? GameMode->GetPhase() : FString();
 	if (CurrentPhase != LastKnownPhase) {
 		bHasVotedInCurrentPhase = false;
 		bIsBusy = false;
 		LastKnownPhase = CurrentPhase;
 	}
-  
+
 	TimeSinceLastDecision += DeltaTime;
 
 	if (bIsWebsocketConnected && !bIsBusy &&
 		TimeSinceLastDecision >= DecisionInterval && CachedRole != "None") {
 		bIsBusy = true;
 		TimeSinceLastDecision = 0.0f;
+		
+		// UE_LOG(LogTemp, Warning, TEXT("[UAIComponent::TickComponent]: %s is making a decision"), *UniqueName);
 
 		const FString EnvironmentPrompt = ScanEnvironment();
 
 		if (CurrentPhase == TEXT("Voting") && bHasVotedInCurrentPhase) {
 			return;
 		}
-		if (CurrentPhase == TEXT("Night") && CachedRole != "Werewolf")
+		
+		if (CurrentPhase == TEXT("Night") && CachedRole == "Werewolf" && bHasVotedInCurrentPhase)
 		{
 			return;
 		}
 		
+		if (CurrentPhase == TEXT("Night") && CachedRole != "Werewolf")
+		{
+			return;
+		}
+
 		MakeDecision(EnvironmentPrompt);
 	}
 }
